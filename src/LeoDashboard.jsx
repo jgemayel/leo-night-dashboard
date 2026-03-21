@@ -356,6 +356,125 @@ export default function LeoDashboard() {
               <StatCard label="Avg Gassy Events" value={overallStats.avgGassy} unit="/night" color="#94a3b8" icon="💨" subtext="Down 53% since Jan" sparkData={data.map(r => r.ga)} />
             </div>
 
+            {/* OVERALL VERDICT BOX */}
+            <div style={{
+              background: "linear-gradient(135deg, rgba(74,222,128,0.06), rgba(99,102,241,0.06))",
+              border: "1px solid rgba(74,222,128,0.15)",
+              borderRadius: 18,
+              padding: "22px 24px",
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              <div style={{ position: "absolute", top: -20, right: -10, fontSize: 80, opacity: 0.04 }}>✓</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 10,
+                  background: "rgba(74,222,128,0.15)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 16,
+                }}>✅</div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#4ade80" }}>Overall Verdict: Healthy, On Track</h3>
+              </div>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, margin: 0 }}>
+                Across 62 tracked nights (Jan 10 to Mar 20), Leo is showing steady, age-appropriate progress. His sleep is consolidating, his digestive system is maturing, and his feeding patterns are stable. For a baby roughly in the 1 to 3 month range, these patterns fall well within normal developmental expectations. There are no red flags. The trajectory is positive across nearly every metric.
+              </p>
+            </div>
+
+            {/* METRIC-BY-METRIC BRIEF */}
+            <div style={{
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: 16,
+              padding: "22px 24px",
+            }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 20px", color: "rgba(255,255,255,0.75)" }}>📋 Full Pattern Summary</h3>
+
+              {/* Sleep */}
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🌙</span>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#818cf8" }}>Sleep</h4>
+                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(74,222,128,0.12)", color: "#4ade80" }}>Improving</span>
+                </div>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
+                  Leo's longest uninterrupted sleep stretch has grown from an average of 2h 54m in January to 3h 25m in February and March. His personal best was 5h 53m on March 16. Night-by-night, we can see a gradual shift where 4+ hour stretches are becoming more common. Wake-ups have also declined modestly, from 5.5 to 4.8 per night.
+                </p>
+                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(99,102,241,0.05)", borderRadius: 10, border: "1px solid rgba(99,102,241,0.08)" }}>
+                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
+                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> At 1-3 months, most babies sleep in 2-4 hour stretches at night and wake 2-4 times for feeds. Leo's pattern of 3+ hour stretches with occasional 4-5 hour blocks is right on track, and actually trending toward the better end of normal. Most pediatricians expect consolidated 5-6 hour stretches to emerge around 3-4 months, and Leo is already showing flashes of that.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feeding */}
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🍼</span>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#38bdf8" }}>Feeding</h4>
+                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.45)" }}>Stable</span>
+                </div>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
+                  Total nightly intake has held steady at 370-400ml across all three months, spread across 3-4 feeds per night. Volume per individual feed is consistent at around 105-115ml, meaning he is feeding efficiently and not snacking. The breast milk to formula mix has shifted gradually from 68% BM / 32% FM in January to roughly 51/49 in March. He consistently burps well after feeds and rarely refuses bottles.
+                </p>
+                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(56,189,248,0.05)", borderRadius: 10, border: "1px solid rgba(56,189,248,0.08)" }}>
+                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
+                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> At 1-3 months, babies generally consume 120-180ml per feed and eat every 2-4 hours. If Leo is taking in ~370-400ml during the 12-hour night shift alone, his total daily intake (including daytime) likely lands in the normal 600-900ml/day range. The gradual shift toward more formula is very common and nothing to be concerned about. The stable per-feed volume is a positive sign of efficient feeding.
+                  </p>
+                </div>
+              </div>
+
+              {/* Digestion */}
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>💩</span>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#fbbf24" }}>Digestion & Bowel</h4>
+                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(74,222,128,0.12)", color: "#4ade80" }}>Maturing</span>
+                </div>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
+                  In January, nighttime poops averaged 2.6 per night, which dropped dramatically to 0.3 in February (71% of nights were poop-free). March saw a return to 2.9 poops/night, possibly linked to the increased formula ratio or dietary changes. Nappy changes dropped from 4.9 to 3.7 to 4.4 per night. The nurse consistently notes "big poo" and "watery" stools in some March entries, which is worth monitoring but not unusual for a mixed-fed baby.
+                </p>
+                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(251,191,36,0.05)", borderRadius: 10, border: "1px solid rgba(251,191,36,0.08)" }}>
+                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
+                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> Newborns commonly poop 3-5+ times per day, and the frequency typically drops as the gut matures (around 6-8 weeks). The February dip aligns perfectly with this developmental shift. The March uptick is not abnormal and can happen when the formula ratio changes, since formula is digested differently than breast milk. As long as stools are soft (not hard pellets) and Leo is not in distress, this is within normal bounds. The persistent redness on his bottom noted by the nurse suggests continued vigilance with barrier cream is important.
+                  </p>
+                </div>
+              </div>
+
+              {/* Gas & Comfort */}
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>💨</span>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#94a3b8" }}>Gas & Comfort</h4>
+                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(74,222,128,0.12)", color: "#4ade80" }}>Major Improvement</span>
+                </div>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
+                  This is the single biggest improvement. Gassy events dropped 53%, from an average of 5.1 per night in January to 2.4 in March. Early January nights frequently featured 7-10 gas events where Leo needed to be picked up, held upright, and soothed. By March, gas episodes are less frequent and less disruptive. This directly correlates with fewer unnecessary wake-ups.
+                </p>
+                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(148,163,184,0.05)", borderRadius: 10, border: "1px solid rgba(148,163,184,0.08)" }}>
+                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
+                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> Infant gas and colic typically peak around 2-6 weeks of age and gradually resolve by 3-4 months as the gut microbiome matures. Leo's 53% drop is exactly what pediatricians expect to see. This is normal, healthy maturation and one of the biggest factors behind why babies start sleeping longer stretches as they grow.
+                  </p>
+                </div>
+              </div>
+
+              {/* Development */}
+              <div style={{ marginBottom: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🧒</span>
+                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#f472b6" }}>Development & Independence</h4>
+                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(74,222,128,0.12)", color: "#4ade80" }}>On Track</span>
+                </div>
+                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
+                  Several developmental markers have emerged over the 10 weeks. Tummy time was introduced in mid-February and became regular in March. On March 17, Milvy noted Leo "started to crawl" during tummy time. He is actively changing his own head position during sleep (noted consistently from late January onward), which shows neck strength and motor control. He was observed cooing, smiling, and responding to voices. He also had one noted instance of self-settling back to sleep (Jan 17). A consistent bedtime routine (bath/massage) became standard by late February.
+                </p>
+                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(244,114,182,0.05)", borderRadius: 10, border: "1px solid rgba(244,114,182,0.08)" }}>
+                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
+                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> Head control and active repositioning during sleep is expected around 2-3 months. Cooing and social smiling typically emerge at 6-8 weeks. The "crawling" at ~10 weeks is likely early scooting or pushing motions during tummy time, which is normal and a positive sign of motor development. True crawling usually begins at 6-10 months. The fact that Leo is engaging with tummy time and showing these early movements is excellent. Self-settling is rare at this age but a very encouraging sign for future sleep independence.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Monthly Comparison */}
             <div style={{
               background: "rgba(255,255,255,0.02)",
