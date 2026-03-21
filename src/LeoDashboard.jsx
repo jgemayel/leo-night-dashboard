@@ -1,142 +1,369 @@
-import { useState, useRef } from "react";
+import { useState, useMemo, useRef } from "react";
 
-const RAW = [{"d":"2026-01-10","ml":435,"fc":4,"fm":0,"bm":4,"po":5,"na":6,"wu":4,"ls":185,"ga":1},{"d":"2026-01-11","ml":310,"fc":3,"fm":1,"bm":4,"po":3,"na":4,"wu":2,"ls":205,"ga":4},{"d":"2026-01-12","ml":410,"fc":4,"fm":1,"bm":3,"po":8,"na":4,"wu":11,"ls":235,"ga":10},{"d":"2026-01-13","ml":360,"fc":3,"fm":1,"bm":2,"po":4,"na":5,"wu":7,"ls":117,"ga":5},{"d":"2026-01-14","ml":500,"fc":4,"fm":3,"bm":1,"po":3,"na":5,"wu":6,"ls":100,"ga":5},{"d":"2026-01-15","ml":460,"fc":4,"fm":0,"bm":4,"po":5,"na":6,"wu":5,"ls":140,"ga":7},{"d":"2026-01-16","ml":480,"fc":4,"fm":1,"bm":3,"po":5,"na":6,"wu":6,"ls":157,"ga":5},{"d":"2026-01-17","ml":230,"fc":2,"fm":0,"bm":2,"po":4,"na":4,"wu":5,"ls":285,"ga":6},{"d":"2026-01-18","ml":360,"fc":3,"fm":1,"bm":2,"po":1,"na":4,"wu":6,"ls":210,"ga":2},{"d":"2026-01-19","ml":420,"fc":4,"fm":2,"bm":2,"po":2,"na":7,"wu":2,"ls":110,"ga":4},{"d":"2026-01-20","ml":260,"fc":2,"fm":1,"bm":1,"po":2,"na":5,"wu":8,"ls":135,"ga":5},{"d":"2026-01-21","ml":480,"fc":4,"fm":2,"bm":2,"po":3,"na":4,"wu":3,"ls":160,"ga":2},{"d":"2026-01-22","ml":380,"fc":3,"fm":1,"bm":2,"po":0,"na":6,"wu":6,"ls":159,"ga":5},{"d":"2026-01-23","ml":470,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":5,"ls":173,"ga":2},{"d":"2026-01-24","ml":360,"fc":3,"fm":0,"bm":3,"po":1,"na":3,"wu":3,"ls":220,"ga":5},{"d":"2026-01-26","ml":425,"fc":4,"fm":2,"bm":2,"po":2,"na":5,"wu":5,"ls":115,"ga":7},{"d":"2026-01-27","ml":380,"fc":3,"fm":3,"bm":0,"po":3,"na":4,"wu":10,"ls":222,"ga":5},{"d":"2026-01-28","ml":360,"fc":3,"fm":0,"bm":3,"po":0,"na":5,"wu":4,"ls":205,"ga":7},{"d":"2026-01-29","ml":440,"fc":5,"fm":1,"bm":4,"po":1,"na":6,"wu":5,"ls":208,"ga":5},{"d":"2026-01-30","ml":370,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":8,"ls":202,"ga":9},{"d":"2026-01-31","ml":470,"fc":4,"fm":1,"bm":3,"po":0,"na":5,"wu":5,"ls":110,"ga":6},{"d":"2026-02-01","ml":360,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":5,"ls":165,"ga":6},{"d":"2026-02-04","ml":470,"fc":4,"fm":1,"bm":3,"po":1,"na":4,"wu":6,"ls":280,"ga":3},{"d":"2026-02-05","ml":390,"fc":4,"fm":0,"bm":4,"po":0,"na":2,"wu":4,"ls":208,"ga":4},{"d":"2026-02-06","ml":430,"fc":4,"fm":3,"bm":1,"po":1,"na":6,"wu":7,"ls":205,"ga":4},{"d":"2026-02-07","ml":480,"fc":4,"fm":1,"bm":3,"po":0,"na":4,"wu":5,"ls":180,"ga":3},{"d":"2026-02-09","ml":380,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":5,"ls":233,"ga":3},{"d":"2026-02-10","ml":262,"fc":3,"fm":2,"bm":1,"po":2,"na":4,"wu":5,"ls":300,"ga":1},{"d":"2026-02-11","ml":290,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":6,"ls":255,"ga":4},{"d":"2026-02-12","ml":420,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":7,"ls":205,"ga":2},{"d":"2026-02-13","ml":500,"fc":5,"fm":4,"bm":1,"po":0,"na":4,"wu":8,"ls":240,"ga":1},{"d":"2026-02-14","ml":330,"fc":3,"fm":1,"bm":2,"po":0,"na":3,"wu":4,"ls":190,"ga":0},{"d":"2026-02-15","ml":290,"fc":4,"fm":1,"bm":3,"po":1,"na":5,"wu":7,"ls":232,"ga":1},{"d":"2026-02-16","ml":420,"fc":4,"fm":2,"bm":2,"po":0,"na":5,"wu":7,"ls":160,"ga":5},{"d":"2026-02-17","ml":240,"fc":2,"fm":0,"bm":2,"po":0,"na":4,"wu":7,"ls":130,"ga":4},{"d":"2026-02-18","ml":470,"fc":4,"fm":1,"bm":3,"po":1,"na":3,"wu":3,"ls":193,"ga":3},{"d":"2026-02-19","ml":430,"fc":4,"fm":3,"bm":1,"po":0,"na":4,"wu":5,"ls":218,"ga":2},{"d":"2026-02-20","ml":410,"fc":4,"fm":0,"bm":4,"po":0,"na":3,"wu":8,"ls":162,"ga":2},{"d":"2026-02-21","ml":350,"fc":3,"fm":1,"bm":2,"po":0,"na":3,"wu":5,"ls":145,"ga":1},{"d":"2026-02-23","ml":310,"fc":4,"fm":1,"bm":3,"po":0,"na":3,"wu":4,"ls":205,"ga":0},{"d":"2026-02-24","ml":380,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":5,"ls":173,"ga":2},{"d":"2026-02-25","ml":380,"fc":4,"fm":0,"bm":4,"po":0,"na":3,"wu":4,"ls":217,"ga":4},{"d":"2026-02-26","ml":510,"fc":4,"fm":1,"bm":3,"po":1,"na":3,"wu":7,"ls":115,"ga":2},{"d":"2026-02-27","ml":440,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":6,"ls":143,"ga":3},{"d":"2026-02-28","ml":380,"fc":4,"fm":3,"bm":1,"po":1,"na":4,"wu":7,"ls":328,"ga":2},{"d":"2026-03-01","ml":360,"fc":3,"fm":1,"bm":2,"po":1,"na":5,"wu":7,"ls":190,"ga":1},{"d":"2026-03-03","ml":390,"fc":5,"fm":4,"bm":1,"po":2,"na":4,"wu":2,"ls":112,"ga":3},{"d":"2026-03-04","ml":390,"fc":4,"fm":1,"bm":3,"po":4,"na":5,"wu":3,"ls":325,"ga":7},{"d":"2026-03-05","ml":270,"fc":3,"fm":3,"bm":0,"po":3,"na":5,"wu":3,"ls":205,"ga":1},{"d":"2026-03-06","ml":310,"fc":5,"fm":1,"bm":4,"po":3,"na":4,"wu":5,"ls":155,"ga":3},{"d":"2026-03-07","ml":280,"fc":3,"fm":2,"bm":1,"po":3,"na":4,"wu":6,"ls":130,"ga":3},{"d":"2026-03-09","ml":300,"fc":3,"fm":0,"bm":3,"po":2,"na":4,"wu":7,"ls":157,"ga":3},{"d":"2026-03-10","ml":390,"fc":4,"fm":3,"bm":1,"po":4,"na":4,"wu":6,"ls":225,"ga":2},{"d":"2026-03-11","ml":180,"fc":2,"fm":1,"bm":1,"po":3,"na":5,"wu":5,"ls":138,"ga":3},{"d":"2026-03-12","ml":400,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":3,"ls":133,"ga":0},{"d":"2026-03-13","ml":450,"fc":5,"fm":1,"bm":4,"po":4,"na":6,"wu":5,"ls":190,"ga":3},{"d":"2026-03-14","ml":350,"fc":3,"fm":2,"bm":1,"po":3,"na":4,"wu":6,"ls":205,"ga":3},{"d":"2026-03-15","ml":440,"fc":4,"fm":2,"bm":2,"po":5,"na":6,"wu":4,"ls":260,"ga":1},{"d":"2026-03-16","ml":430,"fc":5,"fm":2,"bm":3,"po":2,"na":3,"wu":3,"ls":353,"ga":2},{"d":"2026-03-17","ml":450,"fc":4,"fm":2,"bm":2,"po":3,"na":5,"wu":4,"ls":225,"ga":1},{"d":"2026-03-19","ml":410,"fc":4,"fm":3,"bm":1,"po":3,"na":3,"wu":5,"ls":330,"ga":2},{"d":"2026-03-20","ml":485,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":8,"ls":155,"ga":2}];
+const RAW=[{"d":"2026-01-10","ml":435,"fc":4,"fm":0,"bm":4,"po":5,"na":6,"wu":4,"ls":185,"ga":1,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-01-11","ml":310,"fc":3,"fm":1,"bm":4,"po":3,"na":4,"wu":2,"ls":205,"ga":4,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-01-12","ml":410,"fc":4,"fm":1,"bm":3,"po":8,"na":4,"wu":11,"ls":235,"ga":10,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-13","ml":360,"fc":3,"fm":1,"bm":2,"po":4,"na":5,"wu":7,"ls":117,"ga":5,"ba":true,"tt":false,"cr":false,"ss":false,"pa":true,"vd":true},{"d":"2026-01-14","ml":500,"fc":4,"fm":3,"bm":1,"po":3,"na":5,"wu":6,"ls":100,"ga":5,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-15","ml":460,"fc":4,"fm":0,"bm":4,"po":5,"na":6,"wu":5,"ls":140,"ga":7,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-16","ml":480,"fc":4,"fm":1,"bm":3,"po":5,"na":6,"wu":6,"ls":157,"ga":5,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-17","ml":230,"fc":2,"fm":0,"bm":2,"po":4,"na":4,"wu":5,"ls":285,"ga":6,"ba":true,"tt":false,"cr":false,"ss":true,"pa":false,"vd":true},{"d":"2026-01-18","ml":360,"fc":3,"fm":1,"bm":2,"po":1,"na":4,"wu":6,"ls":210,"ga":2,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-19","ml":420,"fc":4,"fm":2,"bm":2,"po":2,"na":7,"wu":2,"ls":110,"ga":4,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-20","ml":260,"fc":2,"fm":1,"bm":1,"po":2,"na":5,"wu":8,"ls":135,"ga":5,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-21","ml":480,"fc":4,"fm":2,"bm":2,"po":3,"na":4,"wu":3,"ls":160,"ga":2,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-01-22","ml":380,"fc":3,"fm":1,"bm":2,"po":0,"na":6,"wu":6,"ls":159,"ga":5,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-01-23","ml":470,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":5,"ls":173,"ga":2,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-01-24","ml":360,"fc":3,"fm":0,"bm":3,"po":1,"na":3,"wu":3,"ls":220,"ga":5,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-01-26","ml":425,"fc":4,"fm":2,"bm":2,"po":2,"na":5,"wu":5,"ls":115,"ga":7,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-27","ml":380,"fc":3,"fm":3,"bm":0,"po":3,"na":4,"wu":10,"ls":222,"ga":5,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-28","ml":360,"fc":3,"fm":0,"bm":3,"po":0,"na":5,"wu":4,"ls":205,"ga":7,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-29","ml":440,"fc":5,"fm":1,"bm":4,"po":1,"na":6,"wu":5,"ls":208,"ga":5,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-30","ml":370,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":8,"ls":202,"ga":9,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-01-31","ml":470,"fc":4,"fm":1,"bm":3,"po":0,"na":5,"wu":5,"ls":110,"ga":6,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-01","ml":360,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":5,"ls":165,"ga":6,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-04","ml":470,"fc":4,"fm":1,"bm":3,"po":1,"na":4,"wu":6,"ls":280,"ga":3,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-05","ml":390,"fc":4,"fm":0,"bm":4,"po":0,"na":2,"wu":4,"ls":208,"ga":4,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-06","ml":430,"fc":4,"fm":3,"bm":1,"po":1,"na":6,"wu":7,"ls":205,"ga":4,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-07","ml":480,"fc":4,"fm":1,"bm":3,"po":0,"na":4,"wu":5,"ls":180,"ga":3,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-09","ml":380,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":5,"ls":233,"ga":3,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-02-10","ml":262,"fc":3,"fm":2,"bm":1,"po":2,"na":4,"wu":5,"ls":300,"ga":1,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-02-11","ml":290,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":6,"ls":255,"ga":4,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-12","ml":420,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":7,"ls":205,"ga":2,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-13","ml":500,"fc":5,"fm":4,"bm":1,"po":0,"na":4,"wu":8,"ls":240,"ga":1,"ba":false,"tt":true,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-14","ml":330,"fc":3,"fm":1,"bm":2,"po":0,"na":3,"wu":4,"ls":190,"ga":0,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-15","ml":290,"fc":4,"fm":1,"bm":3,"po":1,"na":5,"wu":7,"ls":232,"ga":1,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-16","ml":420,"fc":4,"fm":2,"bm":2,"po":0,"na":5,"wu":7,"ls":160,"ga":5,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-17","ml":240,"fc":2,"fm":0,"bm":2,"po":0,"na":4,"wu":7,"ls":130,"ga":4,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-18","ml":470,"fc":4,"fm":1,"bm":3,"po":1,"na":3,"wu":3,"ls":193,"ga":3,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-02-19","ml":430,"fc":4,"fm":3,"bm":1,"po":0,"na":4,"wu":5,"ls":218,"ga":2,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-20","ml":410,"fc":4,"fm":0,"bm":4,"po":0,"na":3,"wu":8,"ls":162,"ga":2,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-21","ml":350,"fc":3,"fm":1,"bm":2,"po":0,"na":3,"wu":5,"ls":145,"ga":1,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-23","ml":310,"fc":4,"fm":1,"bm":3,"po":0,"na":3,"wu":4,"ls":205,"ga":0,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-02-24","ml":380,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":5,"ls":173,"ga":2,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-25","ml":380,"fc":4,"fm":0,"bm":4,"po":0,"na":3,"wu":4,"ls":217,"ga":4,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-26","ml":510,"fc":4,"fm":1,"bm":3,"po":1,"na":3,"wu":7,"ls":115,"ga":2,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-27","ml":440,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":6,"ls":143,"ga":3,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-02-28","ml":380,"fc":4,"fm":3,"bm":1,"po":1,"na":4,"wu":7,"ls":328,"ga":2,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-03-01","ml":360,"fc":3,"fm":1,"bm":2,"po":1,"na":5,"wu":7,"ls":190,"ga":1,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-03","ml":390,"fc":5,"fm":4,"bm":1,"po":2,"na":4,"wu":2,"ls":112,"ga":3,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-04","ml":390,"fc":4,"fm":1,"bm":3,"po":4,"na":5,"wu":3,"ls":325,"ga":7,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-05","ml":270,"fc":3,"fm":3,"bm":0,"po":3,"na":5,"wu":3,"ls":205,"ga":1,"ba":false,"tt":true,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-06","ml":310,"fc":5,"fm":1,"bm":4,"po":3,"na":4,"wu":5,"ls":155,"ga":3,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-07","ml":280,"fc":3,"fm":2,"bm":1,"po":3,"na":4,"wu":6,"ls":130,"ga":3,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-09","ml":300,"fc":3,"fm":0,"bm":3,"po":2,"na":4,"wu":7,"ls":157,"ga":3,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-10","ml":390,"fc":4,"fm":3,"bm":1,"po":4,"na":4,"wu":6,"ls":225,"ga":2,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-11","ml":180,"fc":2,"fm":1,"bm":1,"po":3,"na":5,"wu":5,"ls":138,"ga":3,"ba":false,"tt":true,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-12","ml":400,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":3,"ls":133,"ga":0,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-13","ml":450,"fc":5,"fm":1,"bm":4,"po":4,"na":6,"wu":5,"ls":190,"ga":3,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-14","ml":350,"fc":3,"fm":2,"bm":1,"po":3,"na":4,"wu":6,"ls":205,"ga":3,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-03-15","ml":440,"fc":4,"fm":2,"bm":2,"po":5,"na":6,"wu":4,"ls":260,"ga":1,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":false},{"d":"2026-03-16","ml":430,"fc":5,"fm":2,"bm":3,"po":2,"na":3,"wu":3,"ls":353,"ga":2,"ba":true,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-17","ml":450,"fc":4,"fm":2,"bm":2,"po":3,"na":5,"wu":4,"ls":225,"ga":1,"ba":false,"tt":true,"cr":true,"ss":false,"pa":false,"vd":true},{"d":"2026-03-19","ml":410,"fc":4,"fm":3,"bm":1,"po":3,"na":3,"wu":5,"ls":330,"ga":2,"ba":true,"tt":true,"cr":false,"ss":false,"pa":false,"vd":true},{"d":"2026-03-20","ml":485,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":8,"ls":155,"ga":2,"ba":false,"tt":false,"cr":false,"ss":false,"pa":false,"vd":true}];
 
-const MO={"2026-01":"Jan","2026-02":"Feb","2026-03":"Mar"};
-const MOF={"2026-01":"January","2026-02":"February","2026-03":"March"};
-const MKS=["2026-01","2026-02","2026-03"];
-function av(a){return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:0}
-function sm(a){return a.reduce((x,y)=>x+y,0)}
-function fmtM(m){const h=Math.floor(m/60),n=Math.round(m%60);return h>0?h+"h "+n+"m":n+"m"}
-function mdt(d,k){return d.filter(r=>r.d.startsWith(k))}
-function pc(v,t){return t>0?Math.round(v/t*100):0}
+const MK=["2026-01","2026-02","2026-03"];
+const ML={"2026-01":"Jan","2026-02":"Feb","2026-03":"Mar"};
+const MF={"2026-01":"January","2026-02":"February","2026-03":"March"};
 
-const ST={"2026-01":{n:21,ml:398,fc:3.5,mlpf:115,po:2.6,na:4.9,wu:5.5,ls:174,lsB:285,ga:5.1,pfn:4,fm:24,bm:51,fmp:32,bmp:68},"2026-02":{n:24,ml:388,fc:3.7,mlpf:105,po:0.3,na:3.7,wu:5.7,ls:203,lsB:328,ga:2.6,pfn:17,fm:34,bm:55,fmp:38,bmp:62},"2026-03":{n:17,ml:370,fc:3.8,mlpf:97,po:2.9,na:4.4,wu:4.8,ls:205,lsB:353,ga:2.4,pfn:0,fm:32,bm:33,fmp:49,bmp:51}};
+function av(a){return a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length*10)/10:0;}
+function sm(a){return a.reduce((s,v)=>s+v,0);}
+function pc(n,d){return d>0?Math.round(100*n/d):0;}
+function fmt(m){const h=Math.floor(m/60),mm=Math.round(m%60);return h>0?h+"h "+mm+"m":mm+"m";}
+function byM(d,mk){return d.filter(r=>r.d.startsWith(mk));}
 
-function Spark({data,color,h=40}){
+function Pill({text,color="#4ade80",bg}){return <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,background:bg||color+"18",color,whiteSpace:"nowrap",display:"inline-block"}}>{text}</span>;}
+
+function Spark({data,color,h=44}){
   if(!data.length)return null;
   const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1,w=200,p=6;
-  const pts=data.map((v,i)=>{const x=data.length>1?(i/(data.length-1))*(w-p*2)+p:w/2;const y=h-p-((v-mn)/rng)*(h-p*2);return x+","+y});
-  const area=[...pts,(data.length>1?(w-p):w/2)+","+h,p+","+h];
-  const gid="g"+color.replace(/[^a-z0-9]/gi,"");
-  return(<svg viewBox={"0 0 "+w+" "+h} style={{width:"100%",height:h,display:"block"}} preserveAspectRatio="none"><defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity="0.25"/><stop offset="100%" stopColor={color} stopOpacity="0.02"/></linearGradient></defs><polygon points={area.join(" ")} fill={"url(#"+gid+")"}/><polyline points={pts.join(" ")} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>);
+  const pts=data.map((v,i)=>{const x=data.length>1?(i/(data.length-1))*(w-p*2)+p:w/2;const y=h-p-((v-mn)/rng)*(h-p*2);return[x,y];});
+  const line=pts.map(([x,y])=>x+","+y).join(' ');
+  const area=line+" "+pts[pts.length-1][0]+","+h+" "+pts[0][0]+","+h;
+  const id="sg"+color.replace('#','')+""+h;
+  return(<svg viewBox={"0 0 "+w+" "+h} style={{width:"100%",height:h,display:"block"}} preserveAspectRatio="none"><defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity="0.25"/><stop offset="100%" stopColor={color} stopOpacity="0.01"/></linearGradient></defs><polygon points={area} fill={"url(#"+id+")"}/><polyline points={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85"/></svg>);
 }
 
-function Bars({data,color,maxV,h=110}){
-  return(<div><div style={{display:"flex",alignItems:"flex-end",gap:1,height:h}}>{data.map((v,i)=>{const bh=maxV>0?(v.v/maxV)*(h-16):0;const c=typeof color==="function"?color(v.v):color;return(<div key={i} title={v.l+": "+v.v} style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"flex-end",height:"100%"}}><div style={{width:"100%",maxWidth:14,height:Math.max(2,bh),background:c,borderRadius:3,opacity:0.85,transition:"height 0.4s"}}/></div>)})}</div><div style={{display:"flex",justifyContent:"space-between",marginTop:6}}><span style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>{data[0]&&data[0].l}</span><span style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>{data[data.length-1]&&data[data.length-1].l}</span></div></div>);
+function Bars({data,colorFn,max,h=110}){
+  return(<div><div style={{display:"flex",alignItems:"flex-end",gap:1,height:h}}>{data.map((v,i)=>{const bh=max>0?Math.max(2,(v.val/max)*(h-16)):2;return(<div key={i} title={v.label+": "+v.val} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"flex-end",minWidth:0,height:"100%"}}><div style={{width:"100%",maxWidth:14,height:bh,background:typeof colorFn==='function'?colorFn(v.val):colorFn,borderRadius:3,transition:"height 0.4s ease",opacity:0.8}}/></div>);})}</div><div style={{display:"flex",justifyContent:"space-between",marginTop:6}}><span style={lbl}>{data[0]?.label}</span><span style={lbl}>{data[data.length-1]?.label}</span></div></div>);
 }
 
-function Pill({children,color}){color=color||"#4ade80";return <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,background:color+"18",color:color,whiteSpace:"nowrap"}}>{children}</span>}
+function MP({value,max,color,h=10}){
+  const p=Math.min(100,max>0?(value/max)*100:0);
+  return <div style={{width:"100%",height:h,background:"rgba(255,255,255,0.06)",borderRadius:h/2,overflow:"hidden"}}><div style={{width:p+"%",height:"100%",background:color,borderRadius:h/2,transition:"width 0.5s ease"}}/></div>;
+}
 
-function Prog({label,value,max,color,display}){const p=max>0?Math.min(value/max*100,100):0;return(<div style={{marginBottom:14}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:5}}><span style={{fontSize:13,color:"rgba(255,255,255,0.55)",fontWeight:600}}>{label}</span><span style={{fontSize:14,color:color,fontWeight:700}}>{display||value}</span></div><div style={{width:"100%",height:8,background:"rgba(255,255,255,0.06)",borderRadius:4,overflow:"hidden"}}><div style={{width:p+"%",height:"100%",background:color,borderRadius:4,transition:"width 0.5s ease"}}/></div></div>)}
+function MRow({icon,label,jan,feb,mar,unit="",color="#818cf8"}){
+  return(<div style={{display:"grid",gridTemplateColumns:"1fr 60px 60px 60px",gap:8,alignItems:"center",padding:"12px 0",borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+    <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0}}><span style={{fontSize:16,flexShrink:0}}>{icon}</span><span style={{fontSize:13,fontWeight:600,color:"rgba(255,255,255,0.65)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{label}</span></div>
+    {[jan,feb,mar].map((v,i)=><div key={i} style={{textAlign:"center",fontSize:14,fontWeight:700,color,fontVariantNumeric:"tabular-nums"}}>{v}<span style={{fontSize:10,fontWeight:500,opacity:0.5}}>{unit?" "+unit:""}</span></div>)}
+  </div>);
+}
 
-function C({children,style}){return <div style={Object.assign({background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:16,padding:"18px 18px"},style||{})}>{children}</div>}
+const cd={background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:16,padding:"18px 18px 16px"};
+const ct={fontSize:14,fontWeight:700,color:"rgba(255,255,255,0.65)",margin:"0 0 14px",lineHeight:1.3};
+const lbl={fontSize:10,color:"rgba(255,255,255,0.2)",fontWeight:500};
+const pr={fontSize:13,color:"rgba(255,255,255,0.5)",lineHeight:1.75,margin:0};
+const bkBtn={background:"none",border:"none",color:"rgba(255,255,255,0.3)",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit",textAlign:"left",padding:0};
 
-function T({children,sub}){return(<div style={{marginBottom:sub?14:12}}><h3 style={{fontSize:15,fontWeight:700,margin:0,color:"rgba(255,255,255,0.75)",lineHeight:1.3}}>{children}</h3>{sub&&<p style={{fontSize:12,color:"rgba(255,255,255,0.32)",margin:"4px 0 0",lineHeight:1.4}}>{sub}</p>}</div>)}
-
-function BN({children}){return(<div style={{marginTop:10,padding:"12px 14px",background:"rgba(255,255,255,0.025)",borderRadius:10,border:"1px solid rgba(255,255,255,0.05)"}}><p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}><strong style={{color:"rgba(255,255,255,0.55)"}}>{"Typical for age \u2192"}</strong> {children}</p></div>)}
-
-function MR({icon,metric,jan,feb,mar,unit,color}){unit=unit||"";color=color||"#818cf8";return(<div style={{display:"grid",gridTemplateColumns:"minmax(0,1.5fr) repeat(3,1fr)",gap:8,alignItems:"center",padding:"10px 0",borderBottom:"1px solid rgba(255,255,255,0.04)"}}><div style={{display:"flex",alignItems:"center",gap:6,minWidth:0}}><span style={{fontSize:14,flexShrink:0}}>{icon}</span><span style={{fontSize:12,color:"rgba(255,255,255,0.55)",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{metric}</span></div>{[jan,feb,mar].map((v,i)=><span key={i} style={{fontSize:13,fontWeight:700,color:color,textAlign:"center"}}>{v}<span style={{fontSize:10,opacity:0.6}}>{unit}</span></span>)}</div>)}
-
-function NC({icon,title,value,sub,color,onClick}){return(<button onClick={onClick} style={{all:"unset",cursor:"pointer",display:"flex",flexDirection:"column",background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:14,padding:"16px 16px 14px",transition:"all 0.2s",width:"100%",boxSizing:"border-box"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><span style={{fontSize:22}}>{icon}</span><span style={{fontSize:11,color:"rgba(255,255,255,0.25)"}}>{"\u2192"}</span></div><div style={{fontSize:24,fontWeight:700,color:color,lineHeight:1,marginBottom:4}}>{value}</div><div style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,0.6)",marginBottom:2}}>{title}</div><div style={{fontSize:11,color:"rgba(255,255,255,0.3)",lineHeight:1.4}}>{sub}</div></button>)}
-
-function FMB({data}){return(<div style={{display:"flex",gap:12,alignItems:"flex-end"}}>{MKS.map(function(m){var d=mdt(data,m);var tf=sm(d.map(function(r){return r.fm})),tb=sm(d.map(function(r){return r.bm})),tot=tf+tb;var fp=pc(tf,tot),bp=pc(tb,tot);return(<div key={m} style={{flex:1,textAlign:"center"}}><div style={{height:100,display:"flex",flexDirection:"column",borderRadius:8,overflow:"hidden",border:"1px solid rgba(255,255,255,0.06)"}}><div style={{flex:bp,background:"linear-gradient(180deg,#818cf8,#6366f1)",display:"flex",alignItems:"center",justifyContent:"center",minHeight:bp>10?20:0}}>{bp>15&&<span style={{fontSize:12,fontWeight:700,color:"white"}}>{bp}%</span>}</div><div style={{flex:fp,background:"linear-gradient(180deg,#fb923c,#ea580c)",display:"flex",alignItems:"center",justifyContent:"center",minHeight:fp>10?20:0}}>{fp>15&&<span style={{fontSize:12,fontWeight:700,color:"white"}}>{fp}%</span>}</div></div><div style={{fontSize:12,color:"rgba(255,255,255,0.5)",marginTop:8,fontWeight:600}}>{MO[m]}</div></div>)})}<div style={{display:"flex",flexDirection:"column",gap:8,paddingBottom:28,flexShrink:0}}><div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:10,height:10,borderRadius:3,background:"#818cf8",flexShrink:0}}/><span style={{fontSize:11,color:"rgba(255,255,255,0.45)"}}>Breast Milk</span></div><div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:10,height:10,borderRadius:3,background:"#fb923c",flexShrink:0}}/><span style={{fontSize:11,color:"rgba(255,255,255,0.45)"}}>Formula</span></div></div></div>)}
-
-function IB({icon,title,color,badge,text,benchmark}){var bc=badge==="Improving"||badge==="Major Improvement"||badge==="On Track"||badge==="Maturing"?"#4ade80":badge==="Stable"?"rgba(255,255,255,0.45)":"#fbbf24";return(<div style={{marginBottom:24}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,flexWrap:"wrap"}}><span style={{fontSize:20}}>{icon}</span><h4 style={{fontSize:14,fontWeight:700,margin:0,color:color}}>{title}</h4><Pill color={bc}>{badge}</Pill></div><p style={{fontSize:13,color:"rgba(255,255,255,0.5)",lineHeight:1.7,margin:0}}>{text}</p>{benchmark&&<BN>{benchmark}</BN>}</div>)}
-
-var sleepC=function(v){return v>=240?"#4ade80":v>=180?"#818cf8":v>=120?"#fbbf24":"#f87171"};
-var wakeC=function(v){return v<=3?"#4ade80":v<=5?"#fbbf24":"#f87171"};
-var gasC=function(v){return v>=7?"#f87171":v>=4?"#fbbf24":"#4ade80"};
+function BenchBox({color,children}){
+  return <div style={{marginTop:10,padding:"12px 14px",background:color+"08",borderRadius:10,border:"1px solid "+color+"12",borderLeft:"3px solid "+color+"40"}}>{children}</div>;
+}
 
 export default function LeoDashboard(){
-  var _s=useState("overview"),tab=_s[0],setTab=_s[1];
-  var data=RAW;
-  var goTo=function(t){setTab(t);window.scrollTo({top:0,behavior:"smooth"})};
-  var tabs=[{id:"overview",label:"Overview",icon:"\ud83d\udcca"},{id:"sleep",label:"Sleep",icon:"\ud83c\udf19"},{id:"feeding",label:"Feeding",icon:"\ud83c\udf7c"},{id:"digestion",label:"Digestion",icon:"\ud83d\udca9"},{id:"insights",label:"Insights",icon:"\ud83d\udca1"}];
-  var legend=[["#4ade80","4+ hrs"],["#818cf8","3\u20134 hrs"],["#fbbf24","2\u20133 hrs"],["#f87171","< 2 hrs"]];
+  const[tab,setTab]=useState("overview");
+  const data=RAW;
+  const jan=useMemo(()=>byM(data,"2026-01"),[]);
+  const feb=useMemo(()=>byM(data,"2026-02"),[]);
+  const mar=useMemo(()=>byM(data,"2026-03"),[]);
+  const goTo=(t)=>{setTab(t);window.scrollTo({top:0,behavior:'smooth'});};
+
+  const ms=useMemo(()=>{
+    const c=(d)=>({n:d.length,sleep:av(d.map(r=>r.ls)),bestSleep:Math.max(...d.map(r=>r.ls)),wakeups:av(d.map(r=>r.wu)),milk:av(d.map(r=>r.ml)),feeds:av(d.map(r=>r.fc)),perFeed:av(d.filter(r=>r.fc>0).map(r=>r.ml/r.fc)),fmPct:pc(sm(d.map(r=>r.fm)),sm(d.map(r=>r.fm))+sm(d.map(r=>r.bm))),bmPct:pc(sm(d.map(r=>r.bm)),sm(d.map(r=>r.fm))+sm(d.map(r=>r.bm))),poo:av(d.map(r=>r.po)),pooFree:pc(d.filter(r=>r.po===0).length,d.length),gas:av(d.map(r=>r.ga)),nappy:av(d.map(r=>r.na)),over4h:pc(d.filter(r=>r.ls>=240).length,d.length)});
+    return{jan:c(jan),feb:c(feb),mar:c(mar),all:c(data)};
+  },[]);
+
+  const tabs=[{id:"overview",label:"Overview",icon:"\u{1F4CA}"},{id:"sleep",label:"Sleep",icon:"\u{1F319}"},{id:"feeding",label:"Feeding",icon:"\u{1F37C}"},{id:"digestion",label:"Digestion",icon:"\u{1F4A9}"},{id:"insights",label:"Insights",icon:"\u{1F4A1}"}];
 
   return(
-    <div style={{fontFamily:"'DM Sans','SF Pro Display',-apple-system,'Segoe UI',sans-serif",background:"#0b0b13",color:"rgba(255,255,255,0.85)",minHeight:"100vh",maxWidth:520,margin:"0 auto",paddingBottom:80}}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-      <style>{"*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{-webkit-text-size-adjust:100%}::-webkit-scrollbar{display:none}"}</style>
+    <div style={{fontFamily:"'DM Sans',-apple-system,'Segoe UI',sans-serif",background:"#0b0b13",color:"rgba(255,255,255,0.85)",minHeight:"100vh",maxWidth:600,margin:"0 auto",WebkitOverflowScrolling:"touch"}}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
-      <div style={{padding:"28px 20px 20px",background:"linear-gradient(180deg,rgba(99,102,241,0.07) 0%,transparent 100%)"}}>
+      <div style={{padding:"28px 20px 20px",background:"linear-gradient(180deg, rgba(99,102,241,0.07) 0%, transparent 100%)"}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <span style={{fontSize:28}}>{"\ud83d\udc76"}</span>
-          <div>
-            <h1 style={{fontSize:22,fontWeight:700,margin:0,letterSpacing:"-0.02em",background:"linear-gradient(135deg,#e0e7ff,#818cf8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Leo's Night Report</h1>
-            <p style={{fontSize:12,color:"rgba(255,255,255,0.3)",margin:"3px 0 0",fontWeight:500}}>62 nights · Jan 10 \u2013 Mar 20 · 7 PM \u2013 7 AM</p>
+          <div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg, #6366f1, #818cf8)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{"\u{1F476}"}</div>
+          <div style={{minWidth:0}}>
+            <h1 style={{fontSize:20,fontWeight:800,margin:0,letterSpacing:"-0.02em",color:"#e0e7ff"}}>Leo's Night Report</h1>
+            <p style={{fontSize:12,color:"rgba(255,255,255,0.3)",margin:"3px 0 0",fontWeight:500}}>Jan 10 - Mar 20, 2026 \u00b7 62 nights \u00b7 7 PM - 7 AM</p>
           </div>
         </div>
       </div>
 
-      <div style={{padding:"0 16px"}}>
-        {tab==="overview"&&(<div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
-          <div style={{background:"linear-gradient(135deg,rgba(74,222,128,0.06),rgba(99,102,241,0.04))",border:"1px solid rgba(74,222,128,0.14)",borderRadius:16,padding:"18px 18px"}}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}><span style={{fontSize:18}}>{"\u2705"}</span><h3 style={{fontSize:15,fontWeight:700,margin:0,color:"#4ade80"}}>Verdict: Healthy, On Track</h3></div>
-            <p style={{fontSize:13,color:"rgba(255,255,255,0.5)",lineHeight:1.65,margin:0}}>Across 62 nights, Leo shows steady age-appropriate progress. Sleep is consolidating, gas is down 53%, feeding is stable, and motor skills are emerging. For a baby roughly 1 to 3 months old, everything falls within or above normal expectations. No red flags.</p>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-            <NC icon={"\ud83c\udf19"} title="Sleep" color="#818cf8" value={fmtM(av([ST["2026-01"].ls,ST["2026-02"].ls,ST["2026-03"].ls]))} sub={"Best: "+fmtM(353)} onClick={function(){goTo("sleep")}}/>
-            <NC icon={"\ud83c\udf7c"} title="Feeding" color="#38bdf8" value={Math.round(av([ST["2026-01"].ml,ST["2026-02"].ml,ST["2026-03"].ml]))+" ml"} sub="~3.7 feeds/night" onClick={function(){goTo("feeding")}}/>
-            <NC icon={"\ud83d\udca9"} title="Digestion" color="#fbbf24" value={""+av([ST["2026-01"].po,ST["2026-02"].po,ST["2026-03"].po])} sub="Avg poops/night" onClick={function(){goTo("digestion")}}/>
-            <NC icon={"\ud83d\udca8"} title="Gas & Comfort" color="#94a3b8" value={"5.1 \u2192 2.4"} sub="53% fewer events" onClick={function(){goTo("insights")}}/>
-          </div>
-          <C><T>Month-by-Month Averages</T>
-            <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.5fr) repeat(3,1fr)",gap:8,padding:"0 0 8px",borderBottom:"1px solid rgba(255,255,255,0.08)"}}><span/>{MKS.map(function(m){return <span key={m} style={{textAlign:"center",fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.35)",textTransform:"uppercase",letterSpacing:"0.04em"}}>{MO[m]}</span>})}</div>
-            <MR icon={"\ud83c\udf19"} metric="Longest sleep" jan={fmtM(174)} feb={fmtM(203)} mar={fmtM(205)} color="#818cf8"/>
-            <MR icon={"\u23f0"} metric="Wake-ups" jan="5.5" feb="5.7" mar="4.8" color="#fb923c"/>
-            <MR icon={"\ud83c\udf7c"} metric="Milk intake" jan="398" feb="388" mar="370" unit=" ml" color="#38bdf8"/>
-            <MR icon={"\ud83e\udd5b"} metric="Feeds/night" jan="3.5" feb="3.7" mar="3.8" color="#a78bfa"/>
-            <MR icon={"\ud83e\uddee"} metric="ml per feed" jan="115" feb="105" mar="97" unit=" ml" color="#38bdf8"/>
-            <MR icon={"\ud83d\udca9"} metric="Poops/night" jan="2.6" feb="0.3" mar="2.9" color="#fbbf24"/>
-            <MR icon={"\ud83d\udca8"} metric="Gassy events" jan="5.1" feb="2.6" mar="2.4" color="#94a3b8"/>
-            <MR icon={"\ud83d\udc76"} metric="Nappy changes" jan="4.9" feb="3.7" mar="4.4" color="#f472b6"/>
-          </C>
-          <C><T sub="Color shows duration quality">Nightly Longest Sleep Stretch</T>
-            <Bars data={data.map(function(r){return{v:r.ls,l:r.d.slice(5)}})} color={sleepC} maxV={400} h={100}/>
-            <div style={{display:"flex",gap:12,marginTop:10,flexWrap:"wrap"}}>{legend.map(function(x){return(<div key={x[1]} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:8,height:8,borderRadius:2,background:x[0]}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>{x[1]}</span></div>)})}</div>
-          </C>
-          <C><T>Pattern Summaries</T><p style={{fontSize:12,color:"rgba(255,255,255,0.3)",marginTop:-8,marginBottom:14}}>Tap any section to dive deeper</p>
-            {[{t:"sleep",ic:"\ud83c\udf19",nm:"Sleep",co:"#818cf8",bd:"Improving",tx:"Longest stretch grew from avg 2h 54m to 3h 25m. Best night was 5h 53m (Mar 16). Wake-ups down from 5.5 to 4.8/night. For 1-3 month olds, 3-4 hour stretches are right on schedule."},{t:"feeding",ic:"\ud83c\udf7c",nm:"Feeding",co:"#38bdf8",bd:"Stable",tx:"Nightly intake steady at 370-398ml across 3-4 feeds. Formula share shifted from 32% to 49%, which is common. ~115ml per feed in Jan, ~97ml in Mar. All within normal range."},{t:"digestion",ic:"\ud83d\udca9",nm:"Digestion",co:"#fbbf24",bd:"Maturing",tx:"Nighttime poops dropped to near-zero in Feb (71% poop-free nights), then returned in Mar (2.9/night). Gas events halved from 5.1 to 2.4. Gut is clearly maturing."},{t:"insights",ic:"\ud83e\uddd2",nm:"Development",co:"#f472b6",bd:"On Track",tx:"Tummy time regular from mid-Feb. \"Started to crawl\" noted Mar 17. Active head repositioning during sleep. Consistent bedtime routine established."}].map(function(s){return(<button key={s.t} onClick={function(){goTo(s.t)}} style={{all:"unset",cursor:"pointer",display:"block",width:"100%",padding:"14px 0",borderBottom:"1px solid rgba(255,255,255,0.05)"}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}><span style={{fontSize:16}}>{s.ic}</span><span style={{fontSize:13,fontWeight:700,color:s.co}}>{s.nm}</span><Pill color={s.bd==="Stable"?"rgba(255,255,255,0.45)":"#4ade80"}>{s.bd}</Pill><span style={{marginLeft:"auto",fontSize:11,color:"rgba(255,255,255,0.2)"}}>{"\u2192"}</span></div><p style={{fontSize:12,color:"rgba(255,255,255,0.45)",lineHeight:1.6,margin:0}}>{s.tx}</p></button>)})}
-          </C>
-        </div>)}
-
-        {tab==="sleep"&&(<div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>{MKS.map(function(m,i){var st=ST[m];var cols=["#fb923c","#818cf8","#4ade80"];return(<C key={m} style={{padding:"14px 12px"}}><div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"rgba(255,255,255,0.3)",marginBottom:4}}>{MOF[m]}</div><div style={{fontSize:22,fontWeight:700,color:cols[i],lineHeight:1.1}}>{fmtM(st.ls)}</div><div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:2,marginBottom:8}}>avg longest stretch</div><Spark data={mdt(data,m).map(function(r){return r.ls})} color={cols[i]} h={32}/><div style={{marginTop:8,fontSize:11,color:"rgba(255,255,255,0.35)"}}>Best: <strong style={{color:cols[i]}}>{fmtM(st.lsB)}</strong></div><div style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>Wakes: <strong style={{color:"rgba(255,255,255,0.6)"}}>{st.wu}</strong>/night</div></C>)})}</div>
-          <C><T sub="Duration of each night's longest uninterrupted stretch">Sleep Stretches Over Time</T><Bars data={data.map(function(r){return{v:r.ls,l:r.d.slice(5)}})} color={sleepC} maxV={400} h={100}/><div style={{display:"flex",gap:12,marginTop:10,flexWrap:"wrap"}}>{legend.map(function(x){return(<div key={x[1]} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:8,height:8,borderRadius:2,background:x[0]}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>{x[1]}</span></div>)})}</div></C>
-          <C><T>Wake-ups per Night</T><Bars data={data.map(function(r){return{v:r.wu,l:r.d.slice(5)}})} color={wakeC} maxV={12} h={80}/></C>
-          <C><T sub="Nights where longest stretch exceeded 4 hours">4+ Hour Sleep Nights</T>{MKS.map(function(m){var d=mdt(data,m),ov=d.filter(function(r){return r.ls>=240}).length,p=pc(ov,d.length);return <Prog key={m} label={MOF[m]} value={p} max={100} color="#818cf8" display={ov+"/"+d.length+" nights ("+p+"%)"}/>})}<BN>At 1-3 months, babies typically sleep in 2-4 hour stretches. Consolidated 5-6 hour blocks usually emerge around 3-4 months. Leo is showing early signs of this, which is encouraging.</BN></C>
-        </div>)}
-
-        {tab==="feeding"&&(<div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>{MKS.map(function(m){var st=ST[m];return(<C key={m} style={{padding:"14px 12px"}}><div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"rgba(255,255,255,0.3)",marginBottom:4}}>{MOF[m]}</div><div style={{fontSize:22,fontWeight:700,color:"#38bdf8",lineHeight:1.1}}>{st.ml}</div><div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:2}}>ml/night avg</div><div style={{marginTop:8,fontSize:11,color:"rgba(255,255,255,0.35)"}}>Feeds: <strong style={{color:"rgba(255,255,255,0.6)"}}>{st.fc}</strong>/night</div><div style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>Per feed: <strong style={{color:"rgba(255,255,255,0.6)"}}>{st.mlpf}</strong> ml</div></C>)})}</div>
-          <C><T>Nightly Milk Volume</T><Bars data={data.map(function(r){return{v:r.ml,l:r.d.slice(5)}})} color="#38bdf8" maxV={550} h={100}/></C>
-          <C><T sub="Proportion of breast milk vs formula feeds">Feeding Mix by Month</T><FMB data={data}/><div style={{marginTop:14}}>{MKS.map(function(m){var st=ST[m];return(<div key={m} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid rgba(255,255,255,0.04)",fontSize:12,flexWrap:"wrap",gap:4}}><span style={{color:"rgba(255,255,255,0.45)",fontWeight:600}}>{MOF[m]}</span><span style={{color:"rgba(255,255,255,0.55)"}}><span style={{color:"#818cf8",fontWeight:700}}>{st.bmp}%</span> BM · <span style={{color:"#fb923c",fontWeight:700}}>{st.fmp}%</span> FM · {st.fm+st.bm} feeds</span></div>)})}</div><BN>A gradual shift toward more formula is very common at this age. What matters is that total volume stays stable (it has) and per-feed intake stays consistent. 120-180ml per feed is typical at 1-3 months.</BN></C>
-          <C><T sub="Average ml consumed in a single feeding session">Volume per Feed</T>{MKS.map(function(m){var st=ST[m];return <Prog key={m} label={MOF[m]} value={st.mlpf} max={150} color="#38bdf8" display={st.mlpf+" ml/feed"}/>})}</C>
-        </div>)}
-
-        {tab==="digestion"&&(<div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>{MKS.map(function(m){var st=ST[m];var pcol=st.po<=1?"#4ade80":"#fbbf24";var gc=st.ga<=3?"#4ade80":"#fbbf24";return(<C key={m} style={{padding:"14px 12px"}}><div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"rgba(255,255,255,0.3)",marginBottom:4}}>{MOF[m]}</div><div style={{fontSize:22,fontWeight:700,color:pcol,lineHeight:1.1}}>{st.po}</div><div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:2}}>poops/night</div><div style={{marginTop:8,fontSize:11,color:"rgba(255,255,255,0.35)"}}>Gas: <strong style={{color:gc}}>{st.ga}</strong>/night</div><div style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>Nappies: <strong style={{color:"rgba(255,255,255,0.6)"}}>{st.na}</strong>/night</div></C>)})}</div>
-          <C><T>Poops per Night</T><Bars data={data.map(function(r){return{v:r.po,l:r.d.slice(5)}})} color="#fbbf24" maxV={9} h={80}/></C>
-          <C><T sub="Instances where Leo needed to be picked up for gas relief">Gassy Events per Night</T><Bars data={data.map(function(r){return{v:r.ga,l:r.d.slice(5)}})} color={gasC} maxV={11} h={80}/></C>
-          <C><T sub="Nights with zero nighttime poops (less disrupted sleep)">Poop-Free Nights</T>{MKS.map(function(m){var st=ST[m],p=pc(st.pfn,st.n);return <Prog key={m} label={MOF[m]} value={p} max={100} color="#fbbf24" display={st.pfn+"/"+st.n+" nights ("+p+"%)"}/>})}<BN>Newborns commonly poop 3-5+ times daily. Frequency drops around 6-8 weeks as the gut matures. Feb's calm period aligns with this shift. Mar's return is likely related to the higher formula ratio. As long as stools are soft and Leo is not distressed, this is normal. Continued barrier cream is important for the redness the nurse notes.</BN></C>
-        </div>)}
-
-        {tab==="insights"&&(<div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
-          <C><T>Full Assessment with Benchmarks</T>
-            <IB icon={"\ud83c\udf19"} title="Sleep" color="#818cf8" badge="Improving" text="Longest uninterrupted stretch grew from 2h 54m avg (Jan) to 3h 25m (Feb/Mar). Personal best was 5h 53m on Mar 16. Wake-ups modestly improved from 5.5 to 4.8 per night. The number of nights hitting 4+ hour blocks is increasing." benchmark="At 1-3 months, babies typically sleep in 2-4 hour stretches and wake 2-4 times for feeds. Leo's 3+ hour stretches with emerging 4-5 hour blocks are right on track. Most pediatricians expect consolidated 5-6 hour stretches around 3-4 months, and Leo is showing early flashes of this."/>
-            <IB icon={"\ud83c\udf7c"} title="Feeding" color="#38bdf8" badge="Stable" text="Total nightly intake held at 370-398ml across 3-4 feeds. Volume per feed is consistent at 97-115ml, meaning he feeds efficiently without snacking. The breast milk to formula ratio shifted from 68/32 in Jan to 51/49 in Mar. He burps well and rarely refuses bottles." benchmark="At 1-3 months, babies consume 120-180ml per feed every 2-4 hours. Leo's ~370-400ml during the 12-hour night shift, plus daytime intake, likely lands in the normal 600-900ml/day range. The gradual shift toward more formula is very common and not a concern."/>
-            <IB icon={"\ud83d\udca9"} title="Digestion" color="#fbbf24" badge="Maturing" text="Nighttime poops averaged 2.6/night in Jan, dropped to near-zero in Feb (71% of nights were poop-free), then returned to 2.9/night in Mar. The February drop aligns with the expected 6-8 week gut maturation window. The March return may relate to the higher formula ratio." benchmark="Newborns commonly poop 3-5+ times daily, and frequency typically drops as the gut matures. As long as stools are soft and Leo is not in distress, the variation is normal. The watery stools occasionally noted by the nurse are common for mixed-fed babies."/>
-            <IB icon={"\ud83d\udca8"} title="Gas & Comfort" color="#94a3b8" badge="Major Improvement" text="The single biggest improvement. Gas events dropped 53%, from 5.1/night in Jan to 2.4 in Mar. Early January saw nights with 7-10 gas events requiring pickup and soothing. By March these episodes are less frequent and less disruptive, directly helping sleep quality." benchmark="Infant gas and colic typically peak around 2-6 weeks and gradually resolve by 3-4 months as the gut microbiome develops. Leo's 53% drop is exactly what doctors expect. This natural maturation is one of the main reasons babies start sleeping longer at this age."/>
-            <IB icon={"\ud83e\uddd2"} title="Development & Independence" color="#f472b6" badge="On Track" text={"Tummy time was introduced mid-Feb and became regular in March. On Mar 17, the nurse noted Leo \"started to crawl\" during tummy time. He actively changes head position during sleep (consistent from late Jan). Cooing, smiling, and responding to voices were observed. A bedtime routine (bath/massage) is now firmly established."} benchmark={"Head control and repositioning during sleep is expected at 2-3 months. Cooing and social smiling emerge at 6-8 weeks. The \"crawling\" at ~10 weeks is likely early scooting or pushing, which is normal and encouraging (true crawling starts at 6-10 months). Self-settling is rare at this age but a very positive indicator."}/>
-          </C>
-          <C><T sub="Based on sleep duration, fewer wake-ups, and reduced gas (higher = better)">Night Quality Score</T>{MKS.map(function(m){var d=mdt(data,m);var sleepS=Math.min(av(d.map(function(r){return r.ls}))/300,1)*40;var wakeS=Math.max(0,(1-av(d.map(function(r){return r.wu}))/10))*30;var gasS=Math.max(0,(1-av(d.map(function(r){return r.ga}))/8))*30;var total=Math.round(sleepS+wakeS+gasS);return(<div key={m} style={{marginBottom:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}><span style={{fontSize:13,color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MOF[m]}</span><span style={{fontSize:20,fontWeight:700,color:total>=65?"#4ade80":total>=50?"#fbbf24":"#fb923c"}}>{total}<span style={{fontSize:12,opacity:0.5}}>/100</span></span></div><div style={{display:"flex",gap:2,height:12,borderRadius:6,overflow:"hidden"}}><div style={{flex:sleepS,background:"#818cf8",display:"flex",alignItems:"center",justifyContent:"center"}}>{sleepS>10&&<span style={{fontSize:8,color:"white",fontWeight:700}}>SLEEP</span>}</div><div style={{flex:wakeS,background:"#fb923c",display:"flex",alignItems:"center",justifyContent:"center"}}>{wakeS>10&&<span style={{fontSize:8,color:"white",fontWeight:700}}>CALM</span>}</div><div style={{flex:gasS,background:"#4ade80",display:"flex",alignItems:"center",justifyContent:"center"}}>{gasS>10&&<span style={{fontSize:8,color:"white",fontWeight:700}}>DIGEST</span>}</div></div></div>)})}</C>
-        </div>)}
+      <div style={{display:"flex",gap:6,padding:"10px 20px 12px",overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+        {tabs.map(t=>(
+          <button key={t.id} onClick={()=>goTo(t.id)} style={{padding:"8px 14px",border:"none",borderRadius:10,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",whiteSpace:"nowrap",transition:"all 0.15s",background:tab===t.id?"rgba(99,102,241,0.15)":"rgba(255,255,255,0.03)",color:tab===t.id?"#a5b4fc":"rgba(255,255,255,0.3)",outline:tab===t.id?"1px solid rgba(99,102,241,0.2)":"1px solid transparent"}}>
+            {t.icon} {t.label}
+          </button>
+        ))}
       </div>
 
-      <div style={{position:"fixed",bottom:0,left:0,right:0,background:"rgba(11,11,19,0.92)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",justifyContent:"center",padding:"6px 0 max(6px, env(safe-area-inset-bottom))",zIndex:100}}>
-        <div style={{display:"flex",maxWidth:520,width:"100%",justifyContent:"space-around"}}>{tabs.map(function(t){return(<button key={t.id} onClick={function(){goTo(t.id)}} style={{all:"unset",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"6px 12px",borderRadius:10,transition:"all 0.15s",opacity:tab===t.id?1:0.4}}><span style={{fontSize:20}}>{t.icon}</span><span style={{fontSize:10,fontWeight:600,color:tab===t.id?"#a5b4fc":"rgba(255,255,255,0.5)"}}>{t.label}</span></button>)})}</div>
+      <div style={{padding:"8px 20px 40px"}}>
+
+        {tab==="overview"&&(
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+
+            <div style={{background:"linear-gradient(135deg, rgba(74,222,128,0.05), rgba(99,102,241,0.04))",border:"1px solid rgba(74,222,128,0.12)",borderRadius:16,padding:"18px 18px 16px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                <span style={{fontSize:20}}>{"\u2705"}</span>
+                <h3 style={{fontSize:15,fontWeight:800,margin:0,color:"#4ade80"}}>Healthy, On Track</h3>
+              </div>
+              <p style={{...pr,fontSize:13}}>Across 62 nights, Leo is showing steady, age-appropriate progress for a baby in the 1-3 month range. Sleep is consolidating, his gut is maturing, and feeding is stable. No red flags. The trajectory is positive across nearly every metric.</p>
+            </div>
+
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              {[
+                {label:"Avg Longest Sleep",val:fmt(ms.all.sleep),sub:"Best: "+fmt(Math.max(...data.map(r=>r.ls))),color:"#818cf8",icon:"\u{1F319}",to:"sleep"},
+                {label:"Avg Wake-ups",val:ms.all.wakeups,sub:"per night",color:"#fb923c",icon:"\u23F0",to:"sleep"},
+                {label:"Avg Milk Intake",val:Math.round(ms.all.milk)+"",sub:"ml per night",color:"#38bdf8",icon:"\u{1F37C}",to:"feeding"},
+                {label:"Avg Gas Events",val:ms.all.gas,sub:"per night, down 53%",color:"#94a3b8",icon:"\u{1F4A8}",to:"digestion"},
+              ].map((c,i)=>(
+                <div key={i} onClick={()=>goTo(c.to)} style={{...cd,cursor:"pointer",position:"relative",overflow:"hidden",paddingBottom:12}}>
+                  <div style={{position:"absolute",top:10,right:12,fontSize:18,opacity:0.35}}>{c.icon}</div>
+                  <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.06em",color:"rgba(255,255,255,0.3)",marginBottom:6}}>{c.label}</div>
+                  <div style={{fontSize:26,fontWeight:800,color:c.color,lineHeight:1}}>{c.val}</div>
+                  <div style={{fontSize:11,color:"rgba(255,255,255,0.3)",marginTop:4}}>{c.sub}</div>
+                  <div style={{fontSize:10,color:c.color,opacity:0.5,marginTop:8,fontWeight:600}}>Tap to explore \u2192</div>
+                </div>
+              ))}
+            </div>
+
+            <h3 style={{fontSize:15,fontWeight:800,color:"rgba(255,255,255,0.7)",margin:"6px 0 0"}}>Pattern Summary</h3>
+
+            <div onClick={()=>goTo("sleep")} style={{...cd,cursor:"pointer"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                <span style={{fontSize:18}}>{"\u{1F319}"}</span>
+                <span style={{fontSize:14,fontWeight:700,color:"#818cf8",flex:1}}>Sleep</span>
+                <Pill text="Improving" color="#4ade80"/>
+                <span style={{fontSize:12,color:"rgba(255,255,255,0.2)"}}>{"\u2192"}</span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+                {[{l:"Jan",v:ms.jan.sleep,c:"#fb923c"},{l:"Feb",v:ms.feb.sleep,c:"#818cf8"},{l:"Mar",v:ms.mar.sleep,c:"#4ade80"}].map(m=>(
+                  <div key={m.l} style={{textAlign:"center",padding:"10px 6px",background:"rgba(255,255,255,0.02)",borderRadius:10}}>
+                    <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.3)",marginBottom:4}}>{m.l}</div>
+                    <div style={{fontSize:18,fontWeight:800,color:m.c}}>{fmt(m.v)}</div>
+                    <div style={{fontSize:10,color:"rgba(255,255,255,0.25)",marginTop:2}}>avg stretch</div>
+                  </div>
+                ))}
+              </div>
+              <p style={pr}>Longest uninterrupted stretch grew from 2h 54m in Jan to 3h 25m in Feb/Mar. Best night was 5h 53m (Mar 16). Wake-ups decreased from 5.5 to 4.8 per night.</p>
+              <BenchBox color="#818cf8"><p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}><span style={{color:"rgba(255,255,255,0.6)",fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:"0.04em"}}>vs. typical: </span>At 1-3 months, most babies sleep in 2-4 hour stretches and wake 2-4 times. Leo's 3+ hour average with occasional 4-5 hour blocks is right on track. Consolidated 5-6 hour stretches usually emerge at 3-4 months, and Leo is already showing flashes of that.</p></BenchBox>
+            </div>
+
+            <div onClick={()=>goTo("feeding")} style={{...cd,cursor:"pointer"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                <span style={{fontSize:18}}>{"\u{1F37C}"}</span>
+                <span style={{fontSize:14,fontWeight:700,color:"#38bdf8",flex:1}}>Feeding</span>
+                <Pill text="Stable" color="rgba(255,255,255,0.45)" bg="rgba(255,255,255,0.06)"/>
+                <span style={{fontSize:12,color:"rgba(255,255,255,0.2)"}}>{"\u2192"}</span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+                {[
+                  {l:"Jan",ml:Math.round(ms.jan.milk),f:ms.jan.feeds,pf:Math.round(ms.jan.perFeed),bmp:ms.jan.bmPct,fmp:ms.jan.fmPct},
+                  {l:"Feb",ml:Math.round(ms.feb.milk),f:ms.feb.feeds,pf:Math.round(ms.feb.perFeed),bmp:ms.feb.bmPct,fmp:ms.feb.fmPct},
+                  {l:"Mar",ml:Math.round(ms.mar.milk),f:ms.mar.feeds,pf:Math.round(ms.mar.perFeed),bmp:ms.mar.bmPct,fmp:ms.mar.fmPct},
+                ].map(m=>(
+                  <div key={m.l} style={{textAlign:"center",padding:"10px 6px",background:"rgba(255,255,255,0.02)",borderRadius:10}}>
+                    <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.3)",marginBottom:4}}>{m.l}</div>
+                    <div style={{fontSize:18,fontWeight:800,color:"#38bdf8"}}>{m.ml}<span style={{fontSize:11,fontWeight:500,opacity:0.5}}> ml</span></div>
+                    <div style={{fontSize:10,color:"rgba(255,255,255,0.25)",marginTop:3,lineHeight:1.5}}>{m.f} feeds/n<br/>{m.pf} ml/feed<br/>BM {m.bmp}% \u00b7 FM {m.fmp}%</div>
+                  </div>
+                ))}
+              </div>
+              <p style={pr}>Nightly intake holds at 370-400ml across all three months. Volume per feed is consistent (98-116ml). Formula share has grown from 32% in Jan to 49% in Mar. Leo feeds efficiently and rarely refuses bottles.</p>
+              <BenchBox color="#38bdf8"><p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}><span style={{color:"rgba(255,255,255,0.6)",fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:"0.04em"}}>vs. typical: </span>At 1-3 months, 120-180ml per feed every 2-4 hours is normal. Leo's nighttime total of ~370-400ml plus daytime feeds likely puts his daily intake in the expected 600-900ml range. The shift toward more formula is very common and not a concern.</p></BenchBox>
+            </div>
+
+            <div onClick={()=>goTo("digestion")} style={{...cd,cursor:"pointer"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                <span style={{fontSize:18}}>{"\u{1F4A9}"}</span>
+                <span style={{fontSize:14,fontWeight:700,color:"#fbbf24",flex:1}}>Digestion</span>
+                <Pill text="Maturing" color="#4ade80"/>
+                <span style={{fontSize:12,color:"rgba(255,255,255,0.2)"}}>{"\u2192"}</span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+                {[
+                  {l:"Jan",po:ms.jan.poo,pf:ms.jan.pooFree,ga:ms.jan.gas},
+                  {l:"Feb",po:ms.feb.poo,pf:ms.feb.pooFree,ga:ms.feb.gas},
+                  {l:"Mar",po:ms.mar.poo,pf:ms.mar.pooFree,ga:ms.mar.gas},
+                ].map(m=>(
+                  <div key={m.l} style={{textAlign:"center",padding:"10px 6px",background:"rgba(255,255,255,0.02)",borderRadius:10}}>
+                    <div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.3)",marginBottom:4}}>{m.l}</div>
+                    <div style={{fontSize:16,fontWeight:800,color:"#fbbf24"}}>{m.po} <span style={{fontSize:10,fontWeight:500,opacity:0.5}}>{"\u{1F4A9}"}/n</span></div>
+                    <div style={{fontSize:16,fontWeight:800,color:"#94a3b8",marginTop:2}}>{m.ga} <span style={{fontSize:10,fontWeight:500,opacity:0.5}}>{"\u{1F4A8}"}/n</span></div>
+                    <div style={{fontSize:10,color:"rgba(255,255,255,0.25)",marginTop:3}}>{m.pf}% poo-free</div>
+                  </div>
+                ))}
+              </div>
+              <p style={pr}>Gassiness dropped 53% (5.1 to 2.4 events/night). Poops dipped dramatically in Feb (71% poop-free nights) but returned in Mar (2.9/night), likely linked to increased formula. The nurse notes persistent bottom redness, managed with barrier cream.</p>
+              <BenchBox color="#fbbf24"><p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}><span style={{color:"rgba(255,255,255,0.6)",fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:"0.04em"}}>vs. typical: </span>Gas/colic peaks at 2-6 weeks and resolves by 3-4 months. Leo's 53% drop is exactly expected. Newborns commonly poop 3-5x/day, dropping around 6-8 weeks. Mar's uptick with more formula is normal since formula digests differently.</p></BenchBox>
+            </div>
+
+            <div style={cd}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                <span style={{fontSize:18}}>{"\u{1F9D2}"}</span>
+                <span style={{fontSize:14,fontWeight:700,color:"#f472b6",flex:1}}>Development</span>
+                <Pill text="On Track" color="#4ade80"/>
+              </div>
+              <p style={pr}>Tummy time introduced mid-Feb, regular by March. On Mar 17, the nurse noted Leo "started to crawl." He actively changes his own head position during sleep (noted from late Jan). Cooing, smiling, and responding to voices observed. One self-settling event noted Jan 17. Consistent bedtime routine (bath/massage) established by late Feb.</p>
+              <BenchBox color="#f472b6"><p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}><span style={{color:"rgba(255,255,255,0.6)",fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:"0.04em"}}>vs. typical: </span>Head control around 2-3 months is expected. Social smiling emerges at 6-8 weeks. The "crawling" is likely early scooting during tummy time, a positive motor sign. True crawling begins at 6-10 months. Self-settling is rare at this age but very encouraging.</p></BenchBox>
+            </div>
+
+            <div style={cd}>
+              <h3 style={ct}>Month-over-Month Averages</h3>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 60px 60px 60px",gap:8,paddingBottom:4,borderBottom:"1px solid rgba(255,255,255,0.06)",marginBottom:4}}>
+                <div/>{MK.map(mk=><div key={mk} style={{textAlign:"center",fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.35)"}}>{ML[mk]}</div>)}
+              </div>
+              <MRow icon={"\u{1F319}"} label="Longest Sleep" jan={fmt(ms.jan.sleep)} feb={fmt(ms.feb.sleep)} mar={fmt(ms.mar.sleep)} color="#818cf8"/>
+              <MRow icon={"\u23F0"} label="Wake-ups" jan={ms.jan.wakeups} feb={ms.feb.wakeups} mar={ms.mar.wakeups} color="#fb923c"/>
+              <MRow icon={"\u{1F37C}"} label="Milk Intake" jan={Math.round(ms.jan.milk)+""} feb={Math.round(ms.feb.milk)+""} mar={Math.round(ms.mar.milk)+""} unit="ml" color="#38bdf8"/>
+              <MRow icon={"\u{1F95B}"} label="Feeds" jan={ms.jan.feeds} feb={ms.feb.feeds} mar={ms.mar.feeds} color="#a78bfa"/>
+              <MRow icon={"\u{1F4CF}"} label="ml / Feed" jan={Math.round(ms.jan.perFeed)} feb={Math.round(ms.feb.perFeed)} mar={Math.round(ms.mar.perFeed)} color="#38bdf8"/>
+              <MRow icon={"\u{1F9EA}"} label="Formula %" jan={ms.jan.fmPct+"%"} feb={ms.feb.fmPct+"%"} mar={ms.mar.fmPct+"%"} color="#fb923c"/>
+              <MRow icon={"\u{1F4A9}"} label="Poops" jan={ms.jan.poo} feb={ms.feb.poo} mar={ms.mar.poo} color="#fbbf24"/>
+              <MRow icon={"\u{1F4A8}"} label="Gas Events" jan={ms.jan.gas} feb={ms.feb.gas} mar={ms.mar.gas} color="#94a3b8"/>
+              <MRow icon={"\u{1F476}"} label="Nappy Changes" jan={ms.jan.nappy} feb={ms.feb.nappy} mar={ms.mar.nappy} color="#f472b6"/>
+            </div>
+          </div>
+        )}
+
+        {tab==="sleep"&&(
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <button onClick={()=>goTo("overview")} style={bkBtn}>{"\u2190"} Back to Overview</button>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+              {[{l:"Jan",v:ms.jan.sleep,b:ms.jan.bestSleep,w:ms.jan.wakeups,c:"#fb923c",mk:"2026-01"},{l:"Feb",v:ms.feb.sleep,b:ms.feb.bestSleep,w:ms.feb.wakeups,c:"#818cf8",mk:"2026-02"},{l:"Mar",v:ms.mar.sleep,b:ms.mar.bestSleep,w:ms.mar.wakeups,c:"#4ade80",mk:"2026-03"}].map(m=>(
+                <div key={m.l} style={{...cd,textAlign:"center",padding:"14px 10px"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.05em"}}>{m.l}</div>
+                  <div style={{fontSize:22,fontWeight:800,color:m.c,margin:"6px 0 2px"}}>{fmt(m.v)}</div>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>avg stretch</div>
+                  <Spark data={byM(data,m.mk).map(r=>r.ls)} color={m.c} h={32}/>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:6}}>Best: <strong style={{color:m.c}}>{fmt(m.b)}</strong></div>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>Wake-ups: <strong>{m.w}</strong>/n</div>
+                </div>
+              ))}
+            </div>
+            <div style={cd}>
+              <h3 style={ct}>Longest Sleep Stretch per Night</h3>
+              <Bars data={data.map(r=>({val:r.ls,label:r.d.slice(5)}))} colorFn={v=>v>=240?"#4ade80":v>=180?"#818cf8":v>=120?"#fbbf24":"#f87171"} max={400}/>
+              <div style={{display:"flex",gap:12,marginTop:10,flexWrap:"wrap"}}>
+                {[["#4ade80","4+ hrs"],["#818cf8","3-4 hrs"],["#fbbf24","2-3 hrs"],["#f87171","< 2 hrs"]].map(([c,l])=>(<div key={l} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:2,background:c}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>{l}</span></div>))}
+              </div>
+            </div>
+            <div style={cd}>
+              <h3 style={ct}>Wake-ups per Night</h3>
+              <Bars data={data.map(r=>({val:r.wu,label:r.d.slice(5)}))} colorFn={v=>v<=3?"#4ade80":v<=5?"#fbbf24":"#f87171"} max={12} h={90}/>
+            </div>
+            <div style={cd}>
+              <h3 style={ct}>Nights with 4+ Hour Stretches</h3>
+              {MK.map(mk=>{const md=byM(data,mk);const n=md.filter(r=>r.ls>=240).length;const p=pc(n,md.length);return(<div key={mk} style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MF[mk]}</span><span style={{color:"#818cf8",fontWeight:700}}>{n}/{md.length} nights ({p}%)</span></div><MP value={p} max={100} color="#818cf8"/></div>);})}
+            </div>
+          </div>
+        )}
+
+        {tab==="feeding"&&(
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <button onClick={()=>goTo("overview")} style={bkBtn}>{"\u2190"} Back to Overview</button>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+              {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(
+                <div key={mk} style={{...cd,textAlign:"center",padding:"14px 10px"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.05em"}}>{ML[mk]}</div>
+                  <div style={{fontSize:22,fontWeight:800,color:"#38bdf8",margin:"6px 0 2px"}}>{Math.round(m.milk)}<span style={{fontSize:11,opacity:0.5}}>ml</span></div>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>avg/night</div>
+                  <div style={{margin:"8px 0 4px",borderTop:"1px solid rgba(255,255,255,0.04)",paddingTop:8}}>
+                    <div style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}><strong style={{color:"#a78bfa"}}>{m.feeds}</strong> feeds/n</div>
+                    <div style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}><strong style={{color:"#38bdf8"}}>{Math.round(m.perFeed)}</strong> ml/feed</div>
+                    <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:2}}>BM <strong>{m.bmPct}%</strong> \u00b7 FM <strong>{m.fmPct}%</strong></div>
+                  </div>
+                </div>
+              );})}
+            </div>
+            <div style={cd}><h3 style={ct}>Nightly Milk Volume</h3><Bars data={data.map(r=>({val:r.ml,label:r.d.slice(5)}))} colorFn="#38bdf8" max={550}/></div>
+            <div style={cd}>
+              <h3 style={ct}>Breast Milk vs Formula</h3>
+              <div style={{display:"flex",gap:12,alignItems:"flex-end"}}>
+                {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(
+                  <div key={mk} style={{flex:1,textAlign:"center"}}>
+                    <div style={{height:120,display:"flex",flexDirection:"column",borderRadius:10,overflow:"hidden",border:"1px solid rgba(255,255,255,0.06)"}}>
+                      <div style={{flex:m.bmPct,background:"linear-gradient(180deg, #818cf8, #6366f1)",display:"flex",alignItems:"center",justifyContent:"center"}}>{m.bmPct>12&&<span style={{fontSize:12,fontWeight:700,color:"white"}}>{m.bmPct}%</span>}</div>
+                      <div style={{flex:m.fmPct,background:"linear-gradient(180deg, #fb923c, #ea580c)",display:"flex",alignItems:"center",justifyContent:"center"}}>{m.fmPct>12&&<span style={{fontSize:12,fontWeight:700,color:"white"}}>{m.fmPct}%</span>}</div>
+                    </div>
+                    <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:8,fontWeight:600}}>{ML[mk]}</div>
+                  </div>
+                );})}
+                <div style={{display:"flex",flexDirection:"column",gap:6,paddingBottom:26,flexShrink:0}}>
+                  <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:10,height:10,borderRadius:3,background:"#818cf8"}}/><span style={{fontSize:11,color:"rgba(255,255,255,0.4)"}}>BM</span></div>
+                  <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:10,height:10,borderRadius:3,background:"#fb923c"}}/><span style={{fontSize:11,color:"rgba(255,255,255,0.4)"}}>FM</span></div>
+                </div>
+              </div>
+            </div>
+            <div style={cd}>
+              <h3 style={ct}>Volume per Feed</h3>
+              {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MF[mk]}</span><span style={{color:"#38bdf8",fontWeight:700}}>{Math.round(m.perFeed)} ml/feed</span></div><MP value={m.perFeed} max={140} color="#38bdf8"/></div>);})}
+            </div>
+          </div>
+        )}
+
+        {tab==="digestion"&&(
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <button onClick={()=>goTo("overview")} style={bkBtn}>{"\u2190"} Back to Overview</button>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+              {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(
+                <div key={mk} style={{...cd,textAlign:"center",padding:"14px 10px"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.05em"}}>{ML[mk]}</div>
+                  <div style={{fontSize:18,fontWeight:800,color:"#fbbf24",margin:"6px 0 0"}}>{m.poo} <span style={{fontSize:10,opacity:0.5}}>{"\u{1F4A9}"}</span></div>
+                  <div style={{fontSize:18,fontWeight:800,color:"#94a3b8"}}>{m.gas} <span style={{fontSize:10,opacity:0.5}}>{"\u{1F4A8}"}</span></div>
+                  <div style={{fontSize:18,fontWeight:800,color:"#f472b6"}}>{m.nappy} <span style={{fontSize:10,opacity:0.5}}>{"\u{1FA72}"}</span></div>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.2)",marginTop:4}}>per night avg</div>
+                </div>
+              );})}
+            </div>
+            <div style={cd}><h3 style={ct}>Poops per Night</h3><Bars data={data.map(r=>({val:r.po,label:r.d.slice(5)}))} colorFn="#fbbf24" max={9} h={90}/></div>
+            <div style={cd}>
+              <h3 style={ct}>Gas Events per Night</h3>
+              <Bars data={data.map(r=>({val:r.ga,label:r.d.slice(5)}))} colorFn={v=>v>=7?"#f87171":v>=4?"#fbbf24":"#4ade80"} max={11} h={90}/>
+              <p style={{...pr,fontSize:12,marginTop:10}}>Gas dropped 53% from Jan (5.1/night) to Mar (2.4/night). This is the single biggest comfort improvement and directly correlates with better sleep.</p>
+            </div>
+            <div style={cd}>
+              <h3 style={ct}>Poop-Free Nights</h3>
+              {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MF[mk]}</span><span style={{color:"#fbbf24",fontWeight:700}}>{m.pooFree}%</span></div><MP value={m.pooFree} max={100} color="#fbbf24"/></div>);})}
+              <p style={{...pr,fontSize:12,marginTop:8}}>Feb was exceptionally calm (71% poop-free). Mar returned to frequent nighttime poops, likely from the formula ratio change. Worth monitoring, but not abnormal.</p>
+            </div>
+          </div>
+        )}
+
+        {tab==="insights"&&(
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <button onClick={()=>goTo("overview")} style={bkBtn}>{"\u2190"} Back to Overview</button>
+            <h3 style={{fontSize:16,fontWeight:800,color:"#e0e7ff",margin:0}}>Key Findings</h3>
+            {[
+              {icon:"\u{1F319}",title:"Sleep is consolidating",color:"#818cf8",text:"Longest stretch grew 18% from Jan to Mar. 4+ hour stretches went from occasional to more regular. The best night (5h 53m) shows what Leo is capable of. Wake-ups are gradually declining."},
+              {icon:"\u{1F4A8}",title:"Gas has settled dramatically",color:"#4ade80",text:"The single biggest win. From 5.1 events per night in Jan to 2.4 in Mar. Fewer pick-ups for gas means fewer disruptions and better quality sleep for everyone."},
+              {icon:"\u{1F37C}",title:"Feeding is efficient and steady",color:"#38bdf8",text:"Total nightly intake hasn't wavered. The BM/FM mix is shifting toward 50/50, which is common. Per-feed volume (98-116ml) shows Leo eats well each session rather than snacking."},
+              {icon:"\u{1F4A9}",title:"Digestion is variable but normal",color:"#fbbf24",text:"Feb's dramatic dip in nighttime poops was a sign of gut maturation. March's return to more poops may be formula-related. The nurse consistently flags bottom redness, so barrier cream remains important."},
+              {icon:"\u{1F9D2}",title:"Motor milestones emerging",color:"#f472b6",text:"Tummy time is now routine. Early scooting/crawling attempts noted Mar 17. Active head repositioning during sleep shows growing strength and independence. These are all age-appropriate milestones."},
+              {icon:"\u{1F6C1}",title:"Bedtime routine is established",color:"#a78bfa",text:"A consistent bath and massage before bed became standard by late February. This is one of the most evidence-backed strategies for improving infant sleep, and it's clearly in place."},
+            ].map((ins,i)=>(
+              <div key={i} style={{...cd,borderLeft:"3px solid "+ins.color+"30"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                  <span style={{fontSize:18}}>{ins.icon}</span>
+                  <span style={{fontSize:13,fontWeight:700,color:ins.color}}>{ins.title}</span>
+                </div>
+                <p style={{...pr,fontSize:12.5}}>{ins.text}</p>
+              </div>
+            ))}
+            <div style={cd}>
+              <h3 style={ct}>Monthly Wellness Score</h3>
+              <p style={{fontSize:12,color:"rgba(255,255,255,0.3)",margin:"0 0 14px"}}>Based on sleep duration (40%), fewer wake-ups (30%), reduced gas (30%)</p>
+              {MK.map((mk,i)=>{
+                const m=[ms.jan,ms.feb,ms.mar][i];
+                const ss=Math.min(m.sleep/300,1)*40;
+                const ws=Math.max(0,(1-m.wakeups/10))*30;
+                const gs=Math.max(0,(1-m.gas/8))*30;
+                const total=Math.round(ss+ws+gs);
+                return(<div key={mk} style={{marginBottom:16}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                    <span style={{fontSize:13,color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MF[mk]}</span>
+                    <span style={{fontSize:20,fontWeight:800,color:total>=65?"#4ade80":total>=50?"#fbbf24":"#fb923c"}}>{total}<span style={{fontSize:12,fontWeight:500,opacity:0.4}}>/100</span></span>
+                  </div>
+                  <div style={{display:"flex",gap:2,height:14,borderRadius:7,overflow:"hidden"}}>
+                    <div style={{flex:ss,background:"#818cf8",display:"flex",alignItems:"center",justifyContent:"center"}}>{ss>8&&<span style={{fontSize:8,color:"white",fontWeight:700}}>SLEEP</span>}</div>
+                    <div style={{flex:ws,background:"#fb923c",display:"flex",alignItems:"center",justifyContent:"center"}}>{ws>8&&<span style={{fontSize:8,color:"white",fontWeight:700}}>CALM</span>}</div>
+                    <div style={{flex:gs,background:"#4ade80",display:"flex",alignItems:"center",justifyContent:"center"}}>{gs>8&&<span style={{fontSize:8,color:"white",fontWeight:700}}>GUT</span>}</div>
+                  </div>
+                </div>);
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
