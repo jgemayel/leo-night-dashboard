@@ -2,772 +2,391 @@ import { useState, useMemo } from "react";
 
 const RAW = [{"d":"2026-01-10","ml":435,"fc":4,"fm":0,"bm":4,"po":5,"na":6,"wu":4,"ls":185,"ga":1},{"d":"2026-01-11","ml":310,"fc":3,"fm":1,"bm":4,"po":3,"na":4,"wu":2,"ls":205,"ga":4},{"d":"2026-01-12","ml":410,"fc":4,"fm":1,"bm":3,"po":8,"na":4,"wu":11,"ls":235,"ga":10},{"d":"2026-01-13","ml":360,"fc":3,"fm":1,"bm":2,"po":4,"na":5,"wu":7,"ls":117,"ga":5},{"d":"2026-01-14","ml":500,"fc":4,"fm":3,"bm":1,"po":3,"na":5,"wu":6,"ls":100,"ga":5},{"d":"2026-01-15","ml":460,"fc":4,"fm":0,"bm":4,"po":5,"na":6,"wu":5,"ls":140,"ga":7},{"d":"2026-01-16","ml":480,"fc":4,"fm":1,"bm":3,"po":5,"na":6,"wu":6,"ls":157,"ga":5},{"d":"2026-01-17","ml":230,"fc":2,"fm":0,"bm":2,"po":4,"na":4,"wu":5,"ls":285,"ga":6},{"d":"2026-01-18","ml":360,"fc":3,"fm":1,"bm":2,"po":1,"na":4,"wu":6,"ls":210,"ga":2},{"d":"2026-01-19","ml":420,"fc":4,"fm":2,"bm":2,"po":2,"na":7,"wu":2,"ls":110,"ga":4},{"d":"2026-01-20","ml":260,"fc":2,"fm":1,"bm":1,"po":2,"na":5,"wu":8,"ls":135,"ga":5},{"d":"2026-01-21","ml":480,"fc":4,"fm":2,"bm":2,"po":3,"na":4,"wu":3,"ls":160,"ga":2},{"d":"2026-01-22","ml":380,"fc":3,"fm":1,"bm":2,"po":0,"na":6,"wu":6,"ls":159,"ga":5},{"d":"2026-01-23","ml":470,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":5,"ls":173,"ga":2},{"d":"2026-01-24","ml":360,"fc":3,"fm":0,"bm":3,"po":1,"na":3,"wu":3,"ls":220,"ga":5},{"d":"2026-01-26","ml":425,"fc":4,"fm":2,"bm":2,"po":2,"na":5,"wu":5,"ls":115,"ga":7},{"d":"2026-01-27","ml":380,"fc":3,"fm":3,"bm":0,"po":3,"na":4,"wu":10,"ls":222,"ga":5},{"d":"2026-01-28","ml":360,"fc":3,"fm":0,"bm":3,"po":0,"na":5,"wu":4,"ls":205,"ga":7},{"d":"2026-01-29","ml":440,"fc":5,"fm":1,"bm":4,"po":1,"na":6,"wu":5,"ls":208,"ga":5},{"d":"2026-01-30","ml":370,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":8,"ls":202,"ga":9},{"d":"2026-01-31","ml":470,"fc":4,"fm":1,"bm":3,"po":0,"na":5,"wu":5,"ls":110,"ga":6},{"d":"2026-02-01","ml":360,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":5,"ls":165,"ga":6},{"d":"2026-02-04","ml":470,"fc":4,"fm":1,"bm":3,"po":1,"na":4,"wu":6,"ls":280,"ga":3},{"d":"2026-02-05","ml":390,"fc":4,"fm":0,"bm":4,"po":0,"na":2,"wu":4,"ls":208,"ga":4},{"d":"2026-02-06","ml":430,"fc":4,"fm":3,"bm":1,"po":1,"na":6,"wu":7,"ls":205,"ga":4},{"d":"2026-02-07","ml":480,"fc":4,"fm":1,"bm":3,"po":0,"na":4,"wu":5,"ls":180,"ga":3},{"d":"2026-02-09","ml":380,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":5,"ls":233,"ga":3},{"d":"2026-02-10","ml":262,"fc":3,"fm":2,"bm":1,"po":2,"na":4,"wu":5,"ls":300,"ga":1},{"d":"2026-02-11","ml":290,"fc":3,"fm":1,"bm":2,"po":0,"na":4,"wu":6,"ls":255,"ga":4},{"d":"2026-02-12","ml":420,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":7,"ls":205,"ga":2},{"d":"2026-02-13","ml":500,"fc":5,"fm":4,"bm":1,"po":0,"na":4,"wu":8,"ls":240,"ga":1},{"d":"2026-02-14","ml":330,"fc":3,"fm":1,"bm":2,"po":0,"na":3,"wu":4,"ls":190,"ga":0},{"d":"2026-02-15","ml":290,"fc":4,"fm":1,"bm":3,"po":1,"na":5,"wu":7,"ls":232,"ga":1},{"d":"2026-02-16","ml":420,"fc":4,"fm":2,"bm":2,"po":0,"na":5,"wu":7,"ls":160,"ga":5},{"d":"2026-02-17","ml":240,"fc":2,"fm":0,"bm":2,"po":0,"na":4,"wu":7,"ls":130,"ga":4},{"d":"2026-02-18","ml":470,"fc":4,"fm":1,"bm":3,"po":1,"na":3,"wu":3,"ls":193,"ga":3},{"d":"2026-02-19","ml":430,"fc":4,"fm":3,"bm":1,"po":0,"na":4,"wu":5,"ls":218,"ga":2},{"d":"2026-02-20","ml":410,"fc":4,"fm":0,"bm":4,"po":0,"na":3,"wu":8,"ls":162,"ga":2},{"d":"2026-02-21","ml":350,"fc":3,"fm":1,"bm":2,"po":0,"na":3,"wu":5,"ls":145,"ga":1},{"d":"2026-02-23","ml":310,"fc":4,"fm":1,"bm":3,"po":0,"na":3,"wu":4,"ls":205,"ga":0},{"d":"2026-02-24","ml":380,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":5,"ls":173,"ga":2},{"d":"2026-02-25","ml":380,"fc":4,"fm":0,"bm":4,"po":0,"na":3,"wu":4,"ls":217,"ga":4},{"d":"2026-02-26","ml":510,"fc":4,"fm":1,"bm":3,"po":1,"na":3,"wu":7,"ls":115,"ga":2},{"d":"2026-02-27","ml":440,"fc":4,"fm":2,"bm":2,"po":0,"na":3,"wu":6,"ls":143,"ga":3},{"d":"2026-02-28","ml":380,"fc":4,"fm":3,"bm":1,"po":1,"na":4,"wu":7,"ls":328,"ga":2},{"d":"2026-03-01","ml":360,"fc":3,"fm":1,"bm":2,"po":1,"na":5,"wu":7,"ls":190,"ga":1},{"d":"2026-03-03","ml":390,"fc":5,"fm":4,"bm":1,"po":2,"na":4,"wu":2,"ls":112,"ga":3},{"d":"2026-03-04","ml":390,"fc":4,"fm":1,"bm":3,"po":4,"na":5,"wu":3,"ls":325,"ga":7},{"d":"2026-03-05","ml":270,"fc":3,"fm":3,"bm":0,"po":3,"na":5,"wu":3,"ls":205,"ga":1},{"d":"2026-03-06","ml":310,"fc":5,"fm":1,"bm":4,"po":3,"na":4,"wu":5,"ls":155,"ga":3},{"d":"2026-03-07","ml":280,"fc":3,"fm":2,"bm":1,"po":3,"na":4,"wu":6,"ls":130,"ga":3},{"d":"2026-03-09","ml":300,"fc":3,"fm":0,"bm":3,"po":2,"na":4,"wu":7,"ls":157,"ga":3},{"d":"2026-03-10","ml":390,"fc":4,"fm":3,"bm":1,"po":4,"na":4,"wu":6,"ls":225,"ga":2},{"d":"2026-03-11","ml":180,"fc":2,"fm":1,"bm":1,"po":3,"na":5,"wu":5,"ls":138,"ga":3},{"d":"2026-03-12","ml":400,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":3,"ls":133,"ga":0},{"d":"2026-03-13","ml":450,"fc":5,"fm":1,"bm":4,"po":4,"na":6,"wu":5,"ls":190,"ga":3},{"d":"2026-03-14","ml":350,"fc":3,"fm":2,"bm":1,"po":3,"na":4,"wu":6,"ls":205,"ga":3},{"d":"2026-03-15","ml":440,"fc":4,"fm":2,"bm":2,"po":5,"na":6,"wu":4,"ls":260,"ga":1},{"d":"2026-03-16","ml":430,"fc":5,"fm":2,"bm":3,"po":2,"na":3,"wu":3,"ls":353,"ga":2},{"d":"2026-03-17","ml":450,"fc":4,"fm":2,"bm":2,"po":3,"na":5,"wu":4,"ls":225,"ga":1},{"d":"2026-03-19","ml":410,"fc":4,"fm":3,"bm":1,"po":3,"na":3,"wu":5,"ls":330,"ga":2},{"d":"2026-03-20","ml":485,"fc":4,"fm":2,"bm":2,"po":2,"na":4,"wu":8,"ls":155,"ga":2}];
 
-const MONTHS = { "2026-01": "January", "2026-02": "February", "2026-03": "March" };
+const MK=["2026-01","2026-02","2026-03"];
+const ML={"2026-01":"Jan","2026-02":"Feb","2026-03":"Mar"};
+const MF={"2026-01":"January","2026-02":"February","2026-03":"March"};
 
-function avg(arr) { return arr.length ? Math.round(arr.reduce((a,b) => a+b, 0) / arr.length * 10) / 10 : 0; }
-function sum(arr) { return arr.reduce((a,b) => a+b, 0); }
+function avg(a){return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:0}
+function fmtMin(m){return Math.floor(m/60)+"h "+Math.round(m%60)+"m"}
+function pct(a,b){return b>0?Math.round(a/b*100):0}
+function gm(d,k){return d.filter(r=>r.d.startsWith(k))}
 
-function getMonthData(data, monthKey) {
-  return data.filter(r => r.d.startsWith(monthKey));
-}
+const C={
+  card:{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,padding:16},
+  dim:{color:"rgba(255,255,255,0.4)",fontSize:12},
+  h3:{fontSize:15,fontWeight:700,color:"rgba(255,255,255,0.75)",margin:"0 0 14px"},
+  text:{fontSize:12.5,color:"rgba(255,255,255,0.45)",lineHeight:1.65,margin:0},
+};
 
-function MiniBar({ value, max, color, height = 20 }) {
-  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
-  return (
-    <div style={{ width: "100%", height, background: "rgba(255,255,255,0.06)", borderRadius: 4, overflow: "hidden" }}>
-      <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 4, transition: "width 0.6s ease" }} />
-    </div>
-  );
-}
-
-function SparkLine({ data, color, height = 50, showDots = false }) {
-  if (!data.length) return null;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const w = 100;
-  const pad = 4;
-  const points = data.map((v, i) => {
-    const x = data.length > 1 ? (i / (data.length - 1)) * (w - pad * 2) + pad : w / 2;
-    const y = height - pad - ((v - min) / range) * (height - pad * 2);
-    return `${x},${y}`;
-  });
-  const areaPoints = [...points, `${data.length > 1 ? (w - pad) : w/2},${height}`, `${pad},${height}`];
-  
-  return (
-    <svg viewBox={`0 0 ${w} ${height}`} style={{ width: "100%", height }} preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={`grad-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <polygon points={areaPoints.join(' ')} fill={`url(#grad-${color.replace('#','')})`} />
-      <polyline points={points.join(' ')} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      {showDots && data.map((v, i) => {
-        const x = data.length > 1 ? (i / (data.length - 1)) * (w - pad * 2) + pad : w / 2;
-        const y = height - pad - ((v - min) / range) * (height - pad * 2);
-        return <circle key={i} cx={x} cy={y} r="1.5" fill={color} />;
-      })}
+function SparkLine({data,color,height=44}){
+  if(data.length<2)return null;
+  const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1,w=200,p=6;
+  const pts=data.map((v,i)=>[(i/(data.length-1))*(w-p*2)+p,height-p-((v-mn)/rng)*(height-p*2)]);
+  const line=pts.map(p=>p.join(",")).join(" ");
+  const area=line+` ${pts[pts.length-1][0]},${height} ${pts[0][0]},${height}`;
+  const id=`g${color.replace('#','')}`;
+  return(
+    <svg viewBox={`0 0 ${w} ${height}`} style={{width:"100%",height,display:"block"}} preserveAspectRatio="none">
+      <defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity="0.25"/><stop offset="100%" stopColor={color} stopOpacity="0.02"/></linearGradient></defs>
+      <polygon points={area} fill={`url(#${id})`}/><polyline points={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
 
-function StatCard({ label, value, unit, subtext, color, sparkData, icon }) {
-  return (
-    <div style={{
-      background: "rgba(255,255,255,0.03)",
-      border: "1px solid rgba(255,255,255,0.06)",
-      borderRadius: 16,
-      padding: "20px 20px 14px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 6,
-      position: "relative",
-      overflow: "hidden",
-    }}>
-      <div style={{ position: "absolute", top: 14, right: 16, fontSize: 20, opacity: 0.5 }}>{icon}</div>
-      <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}>{label}</div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-        <span style={{ fontSize: 32, fontWeight: 700, color, lineHeight: 1 }}>{value}</span>
-        {unit && <span style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>{unit}</span>}
-      </div>
-      {subtext && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: -2 }}>{subtext}</div>}
-      {sparkData && <div style={{ marginTop: 4 }}><SparkLine data={sparkData} color={color} height={36} /></div>}
-    </div>
-  );
+function MiniBar({value,max,color,h=12}){
+  return(<div style={{width:"100%",height:h,background:"rgba(255,255,255,0.06)",borderRadius:6,overflow:"hidden"}}><div style={{width:`${Math.min(value/max*100,100)}%`,height:"100%",background:color,borderRadius:6,transition:"width 0.5s"}}/></div>);
 }
 
-function TrendArrow({ current, previous }) {
-  if (!previous || previous === 0) return null;
-  const pct = Math.round(((current - previous) / previous) * 100);
-  if (Math.abs(pct) < 3) return <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)" }}>~same</span>;
-  const up = pct > 0;
-  return (
-    <span style={{ fontSize: 11, fontWeight: 600, color: up ? "#6ee7b7" : "#fca5a5" }}>
-      {up ? "▲" : "▼"} {Math.abs(pct)}%
-    </span>
-  );
-}
-
-function MonthComparisonTable({ data }) {
-  const months = ["2026-01", "2026-02", "2026-03"];
-  const metrics = [
-    { key: "ls", label: "Longest Sleep Stretch", unit: "min", icon: "🌙", good: "up", color: "#818cf8" },
-    { key: "wu", label: "Wake-ups per Night", unit: "", icon: "⏰", good: "down", color: "#fb923c" },
-    { key: "ml", label: "Milk Intake", unit: "ml", icon: "🍼", good: "stable", color: "#38bdf8" },
-    { key: "fc", label: "Feeds per Night", unit: "", icon: "🥛", good: "stable", color: "#a78bfa" },
-    { key: "po", label: "Poops per Night", unit: "", icon: "💩", good: "down", color: "#fbbf24" },
-    { key: "ga", label: "Gassy Events", unit: "", icon: "💨", good: "down", color: "#94a3b8" },
-    { key: "na", label: "Nappy Changes", unit: "", icon: "👶", good: "down", color: "#f472b6" },
-  ];
-
-  const monthAvgs = {};
-  months.forEach(m => {
-    const md = data.filter(r => r.d.startsWith(m));
-    monthAvgs[m] = {};
-    metrics.forEach(met => {
-      monthAvgs[m][met.key] = avg(md.map(r => r[met.key]));
-    });
-  });
-
-  return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: "left", padding: "10px 12px", color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>Metric</th>
-            {months.map(m => (
-              <th key={m} style={{ textAlign: "center", padding: "10px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>{MONTHS[m]}</th>
-            ))}
-            <th style={{ textAlign: "center", padding: "10px 12px", color: "rgba(255,255,255,0.4)", fontWeight: 600, fontSize: 11, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>Trend</th>
-          </tr>
-        </thead>
-        <tbody>
-          {metrics.map(met => {
-            const janVal = monthAvgs["2026-01"][met.key];
-            const marVal = monthAvgs["2026-03"][met.key];
-            const change = janVal > 0 ? ((marVal - janVal) / janVal) * 100 : 0;
-            const isGood = (met.good === "up" && change > 5) || (met.good === "down" && change < -5) || (met.good === "stable" && Math.abs(change) < 10);
-            const isBad = (met.good === "up" && change < -5) || (met.good === "down" && change > 5);
-            
-            return (
-              <tr key={met.key} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                <td style={{ padding: "12px", display: "flex", alignItems: "center", gap: 8 }}>
-                  <span>{met.icon}</span>
-                  <span style={{ color: "rgba(255,255,255,0.8)", fontWeight: 500 }}>{met.label}</span>
-                </td>
-                {months.map(m => (
-                  <td key={m} style={{ textAlign: "center", padding: "12px", color: met.color, fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
-                    {monthAvgs[m][met.key]}{met.unit && <span style={{ fontSize: 10, opacity: 0.6 }}> {met.unit}</span>}
-                  </td>
-                ))}
-                <td style={{ textAlign: "center", padding: "12px" }}>
-                  <span style={{
-                    display: "inline-block",
-                    padding: "3px 10px",
-                    borderRadius: 20,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    background: isGood ? "rgba(74,222,128,0.12)" : isBad ? "rgba(248,113,113,0.12)" : "rgba(255,255,255,0.06)",
-                    color: isGood ? "#4ade80" : isBad ? "#f87171" : "rgba(255,255,255,0.45)",
-                  }}>
-                    {change > 3 ? "▲" : change < -3 ? "▼" : "—"} {Math.abs(Math.round(change))}%
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function BarChart({ data, color, max, height = 140, label }) {
-  const barW = Math.min(12, Math.max(4, 600 / data.length - 2));
-  return (
+function BarChart({data,color,max,height=110}){
+  return(
     <div>
-      {label && <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 6, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>}
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height, padding: "0 2px" }}>
-        {data.map((v, i) => {
-          const h = max > 0 ? (v.val / max) * (height - 20) : 0;
-          return (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, minWidth: 0 }} title={`${v.label}: ${v.val}`}>
-              <div style={{
-                width: "100%",
-                maxWidth: barW,
-                height: Math.max(2, h),
-                background: typeof color === 'function' ? color(v, i) : color,
-                borderRadius: 3,
-                transition: "height 0.5s ease",
-                opacity: 0.85,
-              }} />
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>{data[0]?.label}</span>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)" }}>{data[data.length-1]?.label}</span>
-      </div>
-    </div>
-  );
-}
-
-function FeedingMixChart({ data }) {
-  const months = ["2026-01", "2026-02", "2026-03"];
-  const monthData = months.map(m => {
-    const md = data.filter(r => r.d.startsWith(m));
-    const totalFm = sum(md.map(r => r.fm));
-    const totalBm = sum(md.map(r => r.bm));
-    const total = totalFm + totalBm;
-    return { month: MONTHS[m], fm: total > 0 ? Math.round((totalFm / total) * 100) : 0, bm: total > 0 ? Math.round((totalBm / total) * 100) : 0 };
-  });
-
-  return (
-    <div style={{ display: "flex", gap: 16, alignItems: "flex-end" }}>
-      {monthData.map((m, i) => (
-        <div key={i} style={{ flex: 1, textAlign: "center" }}>
-          <div style={{ height: 120, display: "flex", flexDirection: "column", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ flex: m.bm, background: "linear-gradient(180deg, #818cf8, #6366f1)", transition: "flex 0.5s", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {m.bm > 15 && <span style={{ fontSize: 11, fontWeight: 600, color: "white" }}>{m.bm}%</span>}
-            </div>
-            <div style={{ flex: m.fm, background: "linear-gradient(180deg, #fb923c, #ea580c)", transition: "flex 0.5s", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {m.fm > 15 && <span style={{ fontSize: 11, fontWeight: 600, color: "white" }}>{m.fm}%</span>}
-            </div>
+      <div style={{display:"flex",alignItems:"flex-end",gap:1,height,padding:"0 1px"}}>
+        {data.map((v,i)=>{const h=max>0?Math.max(2,(v.val/max)*(height-16)):0;const c=typeof color==='function'?color(v):color;return(
+          <div key={i} title={`${v.label}: ${v.val}`} style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"flex-end"}}>
+            <div style={{width:"100%",maxWidth:14,height:h,background:c,borderRadius:3,opacity:0.85,transition:"height 0.4s"}}/>
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 8, fontWeight: 600 }}>{m.month}</div>
-        </div>
-      ))}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6, paddingBottom: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 3, background: "#818cf8" }} />
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Breast Milk</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 3, background: "#fb923c" }} />
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Formula</span>
-        </div>
+        );})}
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+        <span style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>{data[0]?.label}</span>
+        <span style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>{data[data.length-1]?.label}</span>
       </div>
     </div>
   );
 }
 
-function InsightCard({ icon, title, text, color }) {
-  return (
-    <div style={{
-      background: `linear-gradient(135deg, ${color}08, ${color}03)`,
-      border: `1px solid ${color}18`,
-      borderRadius: 14,
-      padding: "16px 18px",
-      display: "flex",
-      gap: 12,
-      alignItems: "flex-start",
-    }}>
-      <span style={{ fontSize: 22, lineHeight: 1, marginTop: 1 }}>{icon}</span>
-      <div>
-        <div style={{ fontWeight: 600, color, fontSize: 13, marginBottom: 4 }}>{title}</div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.55 }}>{text}</div>
+function Badge({text,v="good"}){
+  const m={good:{bg:"rgba(74,222,128,0.12)",fg:"#4ade80"},neutral:{bg:"rgba(255,255,255,0.06)",fg:"rgba(255,255,255,0.45)"},great:{bg:"rgba(99,102,241,0.12)",fg:"#a5b4fc"}};
+  const c=m[v]||m.neutral;
+  return <span style={{fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:20,background:c.bg,color:c.fg,whiteSpace:"nowrap"}}>{text}</span>;
+}
+
+function MonthRow({label,values,unit,color,max}){
+  return(
+    <div style={{marginBottom:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:5,gap:8,flexWrap:"wrap"}}>
+        <span style={{fontSize:12,color:"rgba(255,255,255,0.45)",fontWeight:600,minWidth:100}}>{label}</span>
+        <span style={{fontSize:13,fontWeight:700,color,fontVariantNumeric:"tabular-nums"}}>{values.join("  →  ")}{unit&&<span style={{fontSize:10,opacity:0.6}}> {unit}</span>}</span>
+      </div>
+      <div style={{display:"flex",gap:4}}>
+        {values.map((v,i)=>{const n=typeof v==='string'?parseFloat(v):v;return <div key={i} style={{flex:1}}><MiniBar value={isNaN(n)?0:n} max={max} color={color} h={8}/></div>;})}
+      </div>
+      <div style={{display:"flex",gap:4}}>{["Jan","Feb","Mar"].map((m,i)=>(<div key={i} style={{flex:1,textAlign:"center",fontSize:9,color:"rgba(255,255,255,0.2)",marginTop:3}}>{m}</div>))}</div>
+    </div>
+  );
+}
+
+function FeedMixBar({bm,fm,month}){
+  const t=bm+fm;if(!t)return null;
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:4}}>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:11}}>
+        <span style={{color:"rgba(255,255,255,0.4)",fontWeight:600}}>{month}</span>
+        <span style={{color:"rgba(255,255,255,0.35)"}}>{pct(bm,t)}% BM · {pct(fm,t)}% FM</span>
+      </div>
+      <div style={{display:"flex",height:14,borderRadius:7,overflow:"hidden",gap:1}}>
+        <div style={{flex:pct(bm,t),background:"linear-gradient(90deg,#818cf8,#6366f1)",borderRadius:"7px 0 0 7px"}}/>
+        <div style={{flex:pct(fm,t),background:"linear-gradient(90deg,#fb923c,#ea580c)",borderRadius:"0 7px 7px 0"}}/>
       </div>
     </div>
   );
 }
 
-export default function LeoDashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const data = RAW;
+function BenchmarkBox({children}){
+  return(
+    <div style={{marginTop:10,padding:"10px 14px",background:"rgba(255,255,255,0.02)",borderRadius:10,borderLeft:"3px solid rgba(99,102,241,0.3)"}}>
+      <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"rgba(99,102,241,0.5)",marginBottom:4}}>vs. typical for age</div>
+      <p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}>{children}</p>
+    </div>
+  );
+}
 
-  const janData = useMemo(() => getMonthData(data, "2026-01"), []);
-  const febData = useMemo(() => getMonthData(data, "2026-02"), []);
-  const marData = useMemo(() => getMonthData(data, "2026-03"), []);
+function SummaryCard({icon,title,badge,badgeV,children,onClick}){
+  return(
+    <div onClick={onClick} style={{...C.card,cursor:onClick?"pointer":"default",transition:"all 0.2s",WebkitTapHighlightColor:"transparent"}}
+      onMouseEnter={e=>{if(onClick){e.currentTarget.style.border="1px solid rgba(255,255,255,0.15)";e.currentTarget.style.background="rgba(255,255,255,0.05)"}}}
+      onMouseLeave={e=>{if(onClick){e.currentTarget.style.border="1px solid rgba(255,255,255,0.07)";e.currentTarget.style.background="rgba(255,255,255,0.03)"}}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+        <span style={{fontSize:20}}>{icon}</span>
+        <h4 style={{fontSize:14,fontWeight:700,margin:0,color:"rgba(255,255,255,0.8)",flex:1,minWidth:100}}>{title}</h4>
+        <Badge text={badge} v={badgeV}/>
+      </div>
+      {children}
+      {onClick&&<div style={{textAlign:"right",marginTop:10,fontSize:11,color:"rgba(99,102,241,0.5)",fontWeight:600}}>Tap for details →</div>}
+    </div>
+  );
+}
 
-  const tabs = [
-    { id: "overview", label: "Overview", icon: "📊" },
-    { id: "sleep", label: "Sleep", icon: "🌙" },
-    { id: "feeding", label: "Feeding", icon: "🍼" },
-    { id: "digestion", label: "Digestion", icon: "💩" },
-    { id: "insights", label: "Insights", icon: "💡" },
+export default function LeoDashboard(){
+  const [tab,setTab]=useState("overview");
+  const data=RAW;
+  const jan=useMemo(()=>gm(data,"2026-01"),[]);
+  const feb=useMemo(()=>gm(data,"2026-02"),[]);
+  const mar=useMemo(()=>gm(data,"2026-03"),[]);
+  const goTo=t=>{setTab(t);window.scrollTo({top:0,behavior:"smooth"});};
+
+  const tabs=[
+    {id:"overview",label:"Summary",icon:"📋"},
+    {id:"sleep",label:"Sleep",icon:"🌙"},
+    {id:"feeding",label:"Feeding",icon:"🍼"},
+    {id:"digestion",label:"Digestion",icon:"💩"},
   ];
 
-  const overallStats = useMemo(() => ({
-    totalNights: data.length,
-    avgSleep: avg(data.map(r => r.ls)),
-    avgMilk: avg(data.map(r => r.ml)),
-    avgFeeds: avg(data.map(r => r.fc)),
-    avgPoos: avg(data.map(r => r.po)),
-    avgWakeups: avg(data.map(r => r.wu)),
-    avgGassy: avg(data.map(r => r.ga)),
-    bestSleep: Math.max(...data.map(r => r.ls)),
-    bestSleepDate: data.reduce((a, b) => a.ls > b.ls ? a : b).d,
-  }), []);
+  return(
+    <div style={{fontFamily:"'DM Sans',-apple-system,'Segoe UI',sans-serif",background:"#0b0b13",color:"rgba(255,255,255,0.85)",minHeight:"100vh",maxWidth:540,margin:"0 auto",paddingBottom:80}}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
-  return (
-    <div style={{
-      fontFamily: "'DM Sans', 'Nunito', -apple-system, sans-serif",
-      background: "#0c0c14",
-      color: "rgba(255,255,255,0.85)",
-      minHeight: "100vh",
-      padding: "0 0 40px",
-    }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      
       {/* Header */}
-      <div style={{
-        padding: "32px 28px 24px",
-        background: "linear-gradient(180deg, rgba(99,102,241,0.08) 0%, transparent 100%)",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 6 }}>
-          <span style={{ fontSize: 32 }}>👶</span>
+      <div style={{padding:"28px 20px 20px",background:"linear-gradient(180deg,rgba(99,102,241,0.07) 0%,transparent 100%)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <span style={{fontSize:30}}>👶</span>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, letterSpacing: "-0.02em", background: "linear-gradient(135deg, #e0e7ff, #818cf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              Leo's Night Report
-            </h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", margin: "4px 0 0", fontWeight: 500 }}>
-              Jan 10 - Mar 20, 2026 &nbsp;·&nbsp; {data.length} nights tracked &nbsp;·&nbsp; 7 PM to 7 AM shift
-            </p>
+            <h1 style={{fontSize:21,fontWeight:700,margin:0,letterSpacing:"-0.02em",color:"#e0e7ff"}}>Leo's Night Report</h1>
+            <p style={{fontSize:12,color:"rgba(255,255,255,0.3)",margin:"3px 0 0",fontWeight:500}}>Jan 10 – Mar 20, 2026 · 62 nights · 7 PM – 7 AM</p>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{
-        display: "flex",
-        gap: 4,
-        padding: "12px 28px",
-        overflowX: "auto",
-        borderBottom: "1px solid rgba(255,255,255,0.04)",
-      }}>
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: 10,
-              cursor: "pointer",
-              fontSize: 13,
-              fontWeight: 600,
-              fontFamily: "inherit",
-              whiteSpace: "nowrap",
-              transition: "all 0.2s",
-              background: activeTab === tab.id ? "rgba(99,102,241,0.15)" : "transparent",
-              color: activeTab === tab.id ? "#a5b4fc" : "rgba(255,255,255,0.35)",
-              border: activeTab === tab.id ? "1px solid rgba(99,102,241,0.2)" : "1px solid transparent",
-            }}
-          >
-            {tab.icon} {tab.label}
+      {/* Sticky tabs */}
+      <div style={{position:"sticky",top:0,zIndex:10,background:"rgba(11,11,19,0.95)",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"10px 16px",display:"flex",gap:6,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+        {tabs.map(t=>(
+          <button key={t.id} onClick={()=>goTo(t.id)} style={{padding:"8px 14px",border:"none",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"inherit",whiteSpace:"nowrap",transition:"all 0.15s",background:tab===t.id?"rgba(99,102,241,0.18)":"transparent",color:tab===t.id?"#c7d2fe":"rgba(255,255,255,0.35)",outline:tab===t.id?"1px solid rgba(99,102,241,0.25)":"1px solid transparent"}}>
+            {t.icon} {t.label}
           </button>
         ))}
       </div>
 
-      <div style={{ padding: "20px 28px" }}>
-        
-        {/* OVERVIEW TAB */}
-        {activeTab === "overview" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {/* Stat Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
-              <StatCard label="Avg Longest Sleep" value={`${Math.floor(overallStats.avgSleep / 60)}h ${Math.round(overallStats.avgSleep % 60)}m`} color="#818cf8" icon="🌙" subtext={`Best: ${Math.floor(overallStats.bestSleep/60)}h ${overallStats.bestSleep%60}m`} sparkData={data.map(r => r.ls)} />
-              <StatCard label="Avg Milk Intake" value={Math.round(overallStats.avgMilk)} unit="ml/night" color="#38bdf8" icon="🍼" sparkData={data.map(r => r.ml)} />
-              <StatCard label="Avg Wake-ups" value={overallStats.avgWakeups} unit="/night" color="#fb923c" icon="⏰" sparkData={data.map(r => r.wu)} />
-              <StatCard label="Avg Gassy Events" value={overallStats.avgGassy} unit="/night" color="#94a3b8" icon="💨" subtext="Down 53% since Jan" sparkData={data.map(r => r.ga)} />
+      <div style={{padding:"16px 16px 0"}}>
+
+      {/* ═══ OVERVIEW ═══ */}
+      {tab==="overview"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+
+          {/* Verdict */}
+          <div style={{background:"linear-gradient(135deg,rgba(74,222,128,0.06),rgba(99,102,241,0.04))",border:"1px solid rgba(74,222,128,0.15)",borderRadius:14,padding:"18px 18px 16px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+              <span style={{fontSize:20}}>✅</span>
+              <h3 style={{fontSize:15,fontWeight:700,margin:0,color:"#4ade80"}}>Overall: Healthy & On Track</h3>
             </div>
-
-            {/* OVERALL VERDICT BOX */}
-            <div style={{
-              background: "linear-gradient(135deg, rgba(74,222,128,0.06), rgba(99,102,241,0.06))",
-              border: "1px solid rgba(74,222,128,0.15)",
-              borderRadius: 18,
-              padding: "22px 24px",
-              position: "relative",
-              overflow: "hidden",
-            }}>
-              <div style={{ position: "absolute", top: -20, right: -10, fontSize: 80, opacity: 0.04 }}>✓</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: 10,
-                  background: "rgba(74,222,128,0.15)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 16,
-                }}>✅</div>
-                <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#4ade80" }}>Overall Verdict: Healthy, On Track</h3>
-              </div>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.7, margin: 0 }}>
-                Across 62 tracked nights (Jan 10 to Mar 20), Leo is showing steady, age-appropriate progress. His sleep is consolidating, his digestive system is maturing, and his feeding patterns are stable. For a baby roughly in the 1 to 3 month range, these patterns fall well within normal developmental expectations. There are no red flags. The trajectory is positive across nearly every metric.
-              </p>
-            </div>
-
-            {/* METRIC-BY-METRIC BRIEF */}
-            <div style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 16,
-              padding: "22px 24px",
-            }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 20px", color: "rgba(255,255,255,0.75)" }}>📋 Full Pattern Summary</h3>
-
-              {/* Sleep */}
-              <div style={{ marginBottom: 22 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 18 }}>🌙</span>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#818cf8" }}>Sleep</h4>
-                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(74,222,128,0.12)", color: "#4ade80" }}>Improving</span>
-                </div>
-                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
-                  Leo's longest uninterrupted sleep stretch has grown from an average of 2h 54m in January to 3h 25m in February and March. His personal best was 5h 53m on March 16. Night-by-night, we can see a gradual shift where 4+ hour stretches are becoming more common. Wake-ups have also declined modestly, from 5.5 to 4.8 per night.
-                </p>
-                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(99,102,241,0.05)", borderRadius: 10, border: "1px solid rgba(99,102,241,0.08)" }}>
-                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
-                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> At 1-3 months, most babies sleep in 2-4 hour stretches at night and wake 2-4 times for feeds. Leo's pattern of 3+ hour stretches with occasional 4-5 hour blocks is right on track, and actually trending toward the better end of normal. Most pediatricians expect consolidated 5-6 hour stretches to emerge around 3-4 months, and Leo is already showing flashes of that.
-                  </p>
-                </div>
-              </div>
-
-              {/* Feeding */}
-              <div style={{ marginBottom: 22 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 18 }}>🍼</span>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#38bdf8" }}>Feeding</h4>
-                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.45)" }}>Stable</span>
-                </div>
-                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
-                  Total nightly intake has held steady at 370-400ml across all three months, spread across 3-4 feeds per night. Volume per individual feed is consistent at around 105-115ml, meaning he is feeding efficiently and not snacking. The breast milk to formula mix has shifted gradually from 68% BM / 32% FM in January to roughly 51/49 in March. He consistently burps well after feeds and rarely refuses bottles.
-                </p>
-                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(56,189,248,0.05)", borderRadius: 10, border: "1px solid rgba(56,189,248,0.08)" }}>
-                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
-                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> At 1-3 months, babies generally consume 120-180ml per feed and eat every 2-4 hours. If Leo is taking in ~370-400ml during the 12-hour night shift alone, his total daily intake (including daytime) likely lands in the normal 600-900ml/day range. The gradual shift toward more formula is very common and nothing to be concerned about. The stable per-feed volume is a positive sign of efficient feeding.
-                  </p>
-                </div>
-              </div>
-
-              {/* Digestion */}
-              <div style={{ marginBottom: 22 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 18 }}>💩</span>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#fbbf24" }}>Digestion & Bowel</h4>
-                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(74,222,128,0.12)", color: "#4ade80" }}>Maturing</span>
-                </div>
-                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
-                  In January, nighttime poops averaged 2.6 per night, which dropped dramatically to 0.3 in February (71% of nights were poop-free). March saw a return to 2.9 poops/night, possibly linked to the increased formula ratio or dietary changes. Nappy changes dropped from 4.9 to 3.7 to 4.4 per night. The nurse consistently notes "big poo" and "watery" stools in some March entries, which is worth monitoring but not unusual for a mixed-fed baby.
-                </p>
-                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(251,191,36,0.05)", borderRadius: 10, border: "1px solid rgba(251,191,36,0.08)" }}>
-                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
-                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> Newborns commonly poop 3-5+ times per day, and the frequency typically drops as the gut matures (around 6-8 weeks). The February dip aligns perfectly with this developmental shift. The March uptick is not abnormal and can happen when the formula ratio changes, since formula is digested differently than breast milk. As long as stools are soft (not hard pellets) and Leo is not in distress, this is within normal bounds. The persistent redness on his bottom noted by the nurse suggests continued vigilance with barrier cream is important.
-                  </p>
-                </div>
-              </div>
-
-              {/* Gas & Comfort */}
-              <div style={{ marginBottom: 22 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 18 }}>💨</span>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#94a3b8" }}>Gas & Comfort</h4>
-                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(74,222,128,0.12)", color: "#4ade80" }}>Major Improvement</span>
-                </div>
-                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
-                  This is the single biggest improvement. Gassy events dropped 53%, from an average of 5.1 per night in January to 2.4 in March. Early January nights frequently featured 7-10 gas events where Leo needed to be picked up, held upright, and soothed. By March, gas episodes are less frequent and less disruptive. This directly correlates with fewer unnecessary wake-ups.
-                </p>
-                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(148,163,184,0.05)", borderRadius: 10, border: "1px solid rgba(148,163,184,0.08)" }}>
-                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
-                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> Infant gas and colic typically peak around 2-6 weeks of age and gradually resolve by 3-4 months as the gut microbiome matures. Leo's 53% drop is exactly what pediatricians expect to see. This is normal, healthy maturation and one of the biggest factors behind why babies start sleeping longer stretches as they grow.
-                  </p>
-                </div>
-              </div>
-
-              {/* Development */}
-              <div style={{ marginBottom: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 18 }}>🧒</span>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#f472b6" }}>Development & Independence</h4>
-                  <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, background: "rgba(74,222,128,0.12)", color: "#4ade80" }}>On Track</span>
-                </div>
-                <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, margin: 0 }}>
-                  Several developmental markers have emerged over the 10 weeks. Tummy time was introduced in mid-February and became regular in March. On March 17, Milvy noted Leo "started to crawl" during tummy time. He is actively changing his own head position during sleep (noted consistently from late January onward), which shows neck strength and motor control. He was observed cooing, smiling, and responding to voices. He also had one noted instance of self-settling back to sleep (Jan 17). A consistent bedtime routine (bath/massage) became standard by late February.
-                </p>
-                <div style={{ marginTop: 8, padding: "10px 14px", background: "rgba(244,114,182,0.05)", borderRadius: 10, border: "1px solid rgba(244,114,182,0.08)" }}>
-                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.4)", lineHeight: 1.6, margin: 0 }}>
-                    <strong style={{ color: "rgba(255,255,255,0.55)" }}>vs. Typical:</strong> Head control and active repositioning during sleep is expected around 2-3 months. Cooing and social smiling typically emerge at 6-8 weeks. The "crawling" at ~10 weeks is likely early scooting or pushing motions during tummy time, which is normal and a positive sign of motor development. True crawling usually begins at 6-10 months. The fact that Leo is engaging with tummy time and showing these early movements is excellent. Self-settling is rare at this age but a very encouraging sign for future sleep independence.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Monthly Comparison */}
-            <div style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 16,
-              padding: 20,
-            }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 16px", color: "rgba(255,255,255,0.7)" }}>Monthly Comparison</h3>
-              <MonthComparisonTable data={data} />
-            </div>
-
-            {/* Timeline Bars */}
-            <div style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 16,
-              padding: 20,
-            }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 16px", color: "rgba(255,255,255,0.7)" }}>Nightly Sleep Stretches (longest per night)</h3>
-              <BarChart
-                data={data.map(r => ({ val: r.ls, label: r.d.slice(5) }))}
-                color={(v) => v.val >= 240 ? "#4ade80" : v.val >= 180 ? "#818cf8" : v.val >= 120 ? "#fbbf24" : "#f87171"}
-                max={400}
-                height={120}
-              />
-              <div style={{ display: "flex", gap: 16, marginTop: 10, flexWrap: "wrap" }}>
-                {[["#4ade80", "4+ hours"], ["#818cf8", "3-4 hours"], ["#fbbf24", "2-3 hours"], ["#f87171", "< 2 hours"]].map(([c, l]) => (
-                  <div key={l} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: 2, background: c }} />
-                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{l}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <p style={{...C.text,fontSize:13,color:"rgba(255,255,255,0.5)",lineHeight:1.7}}>
+              Over 62 tracked nights, Leo shows steady age-appropriate progress for a baby in the 1–3 month range. Sleep is consolidating, gas is resolving, feeding is efficient and stable. No red flags. The trajectory is positive across nearly every metric.
+            </p>
           </div>
-        )}
 
-        {/* SLEEP TAB */}
-        {activeTab === "sleep" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
-              {[
-                { label: "January", data: janData, color: "#fb923c" },
-                { label: "February", data: febData, color: "#818cf8" },
-                { label: "March", data: marData, color: "#4ade80" },
-              ].map(m => (
-                <div key={m.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: "18px 20px" }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "rgba(255,255,255,0.35)", marginBottom: 4 }}>{m.label}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: m.color }}>
-                    {Math.floor(avg(m.data.map(r => r.ls)) / 60)}h {Math.round(avg(m.data.map(r => r.ls)) % 60)}m
-                  </div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 2 }}>avg longest stretch</div>
-                  <div style={{ marginTop: 10 }}>
-                    <SparkLine data={m.data.map(r => r.ls)} color={m.color} height={40} showDots />
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
-                    <span>Wake-ups: <strong style={{ color: "rgba(255,255,255,0.7)" }}>{avg(m.data.map(r => r.wu))}</strong>/night</span>
-                    <span>Best: <strong style={{ color: m.color }}>{Math.max(...m.data.map(r => r.ls))}m</strong></span>
-                  </div>
+          {/* At-a-glance */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            {[
+              {l:"Avg Longest Sleep",v:fmtMin(193.9),s:"Best: "+fmtMin(353),c:"#818cf8",i:"🌙"},
+              {l:"Avg Nightly Intake",v:"387 ml",s:"3.6 feeds/night",c:"#38bdf8",i:"🍼"},
+              {l:"Avg Wake-ups",v:"5.4/night",s:"Down 13% since Jan",c:"#fb923c",i:"⏰"},
+              {l:"Avg Gas Events",v:"3.4/night",s:"Down 53% since Jan",c:"#94a3b8",i:"💨"},
+            ].map((s,i)=>(
+              <div key={i} style={{...C.card,padding:"14px 14px 12px"}}>
+                <div style={{fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.07em",color:"rgba(255,255,255,0.3)",marginBottom:4}}>{s.i} {s.l}</div>
+                <div style={{fontSize:22,fontWeight:700,color:s.c,lineHeight:1.1}}>{s.v}</div>
+                <div style={{fontSize:10,color:"rgba(255,255,255,0.25)",marginTop:3}}>{s.s}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Sleep summary */}
+          <SummaryCard icon="🌙" title="Sleep" badge="Improving" badgeV="good" onClick={()=>goTo("sleep")}>
+            <MonthRow label="Avg longest stretch" values={[fmtMin(174),fmtMin(203.4),fmtMin(205.2)]} color="#818cf8" max={360}/>
+            <MonthRow label="Avg wake-ups" values={["5.5","5.7","4.8"]} unit="/night" color="#fb923c" max={8}/>
+            <MonthRow label="4h+ sleep nights" values={["1/21","5/24","4/17"]} color="#4ade80" max={24}/>
+            <p style={{...C.text,margin:"8px 0 0"}}>
+              Leo's longest uninterrupted stretch grew from 2h 54m (Jan avg) to 3h 25m by Feb/Mar. His personal best was 5h 53m on Mar 16. Nights with 4+ hour stretches went from 1 out of 21 in January to 5 out of 24 in February and 4 out of 17 in March. Wake-ups dipped from 5.5 to 4.8 per night.
+            </p>
+            <BenchmarkBox>
+              At 1–3 months, 2–4 hour stretches are the norm, with 2–4 wake-ups for feeds. Leo's emerging 4–5 hour blocks are right on the better end of normal. Pediatricians expect 5–6 hour consolidated stretches around 3–4 months, and he's already showing early signs.
+            </BenchmarkBox>
+          </SummaryCard>
+
+          {/* Feeding summary */}
+          <SummaryCard icon="🍼" title="Feeding" badge="Stable" badgeV="neutral" onClick={()=>goTo("feeding")}>
+            <MonthRow label="Avg nightly volume" values={["398","388","370"]} unit="ml" color="#38bdf8" max={500}/>
+            <MonthRow label="Avg feeds per night" values={["3.5","3.7","3.8"]} color="#a78bfa" max={5}/>
+            <MonthRow label="Avg ml per feed" values={["116","105","98"]} unit="ml" color="#2dd4bf" max={140}/>
+            <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:8}}>
+              <FeedMixBar bm={51} fm={24} month="January"/>
+              <FeedMixBar bm={55} fm={34} month="February"/>
+              <FeedMixBar bm={33} fm={32} month="March"/>
+            </div>
+            <div style={{display:"flex",gap:12,marginTop:8}}>
+              <div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:2,background:"#818cf8"}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>Breast Milk</span></div>
+              <div style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:2,background:"#fb923c"}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>Formula</span></div>
+            </div>
+            <p style={{...C.text,margin:"10px 0 0"}}>
+              Total nightly intake held steady at 370–400ml. Breast milk to formula ratio shifted from 68/32 in Jan to roughly 51/49 in Mar. Per-feed volume dipped slightly (116 → 98 ml) but feed count increased (3.5 → 3.8), keeping total intake consistent. He burps well and rarely refuses bottles.
+            </p>
+            <BenchmarkBox>
+              At 1–3 months, 120–180ml per feed every 2–4 hours is typical. At ~370–400ml overnight (the 12-hour night shift), his full-day intake likely sits in the healthy 600–900ml range. The gradual formula increase is very common and not a concern.
+            </BenchmarkBox>
+          </SummaryCard>
+
+          {/* Digestion summary */}
+          <SummaryCard icon="💩" title="Digestion & Gas" badge="Maturing" badgeV="good" onClick={()=>goTo("digestion")}>
+            <MonthRow label="Avg poops/night" values={["2.6","0.3","2.9"]} color="#fbbf24" max={4}/>
+            <MonthRow label="Avg gas events" values={["5.1","2.6","2.4"]} unit="/night" color="#94a3b8" max={7}/>
+            <MonthRow label="Poop-free nights" values={["19%","71%","0%"]} color="#fbbf24" max={100}/>
+            <p style={{...C.text,margin:"8px 0 0"}}>
+              Gas events dropped 53% (5.1 → 2.4/night), the single biggest improvement. Feb saw an unusual poop-free streak (17 of 24 nights had zero poops), while March returned to 2.9/night, likely linked to the increased formula ratio. Persistent redness on his bottom is noted and managed with barrier cream.
+            </p>
+            <BenchmarkBox>
+              Gas and colic peak at 2–6 weeks and resolve by 3–4 months. Leo's trajectory matches this perfectly. Newborns commonly poop 3–5+ times daily, with frequency dropping as the gut matures. The March uptick with more formula is normal. As long as stools are soft and he's not in distress, everything is within bounds.
+            </BenchmarkBox>
+          </SummaryCard>
+
+          {/* Development summary */}
+          <SummaryCard icon="🧒" title="Development & Independence" badge="On Track" badgeV="great">
+            <p style={{...C.text}}>
+              Tummy time was introduced mid-February and became regular in March. On Mar 17, Milvy noted Leo "started to crawl" during tummy time. He actively repositions his head during sleep (from late Jan onward), showing neck strength. Cooing, smiling, and responding to voices were observed. One self-settling instance was noted (Jan 17). A bedtime routine (bath/massage) became standard by late February.
+            </p>
+            <BenchmarkBox>
+              Head control and repositioning is expected at 2–3 months. Social smiling and cooing emerge at 6–8 weeks. The "crawling" at ~10 weeks is likely early scooting/pushing motions, which is normal and positive. True crawling begins at 6–10 months. Self-settling is rare this early but very encouraging for future sleep independence.
+            </BenchmarkBox>
+          </SummaryCard>
+
+        </div>
+      )}
+
+      {/* ═══ SLEEP ═══ */}
+      {tab==="sleep"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          {[
+            {label:"January",d:jan,color:"#fb923c"},
+            {label:"February",d:feb,color:"#818cf8"},
+            {label:"March",d:mar,color:"#4ade80"},
+          ].map(m=>{
+            const avgS=avg(m.d.map(r=>r.ls)),best=Math.max(...m.d.map(r=>r.ls)),avgW=avg(m.d.map(r=>r.wu)),over4=m.d.filter(r=>r.ls>=240).length;
+            return(
+              <div key={m.label} style={C.card}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
+                  <span style={{fontSize:13,fontWeight:700,color:"rgba(255,255,255,0.6)"}}>{m.label}</span>
+                  <span style={{fontSize:11,color:"rgba(255,255,255,0.25)"}}>{m.d.length} nights</span>
                 </div>
+                <div style={{fontSize:26,fontWeight:700,color:m.color,lineHeight:1}}>{fmtMin(avgS)}</div>
+                <div style={{fontSize:11,color:"rgba(255,255,255,0.3)",marginTop:2}}>avg longest stretch</div>
+                <SparkLine data={m.d.map(r=>r.ls)} color={m.color} height={36}/>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginTop:8}}>
+                  <div><div style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>Best night</div><div style={{fontSize:14,fontWeight:700,color:m.color}}>{fmtMin(best)}</div></div>
+                  <div><div style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>Avg wake-ups</div><div style={{fontSize:14,fontWeight:700,color:"#fb923c"}}>{avgW}</div></div>
+                  <div><div style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>4h+ nights</div><div style={{fontSize:14,fontWeight:700,color:"#4ade80"}}>{over4}/{m.d.length}</div></div>
+                </div>
+              </div>
+            );
+          })}
+          <div style={C.card}>
+            <h3 style={C.h3}>Longest Sleep Stretch per Night</h3>
+            <BarChart data={data.map(r=>({val:r.ls,label:r.d.slice(5)}))} color={v=>v.val>=240?"#4ade80":v.val>=180?"#818cf8":v.val>=120?"#fbbf24":"#f87171"} max={400} height={100}/>
+            <div style={{display:"flex",gap:12,marginTop:8,flexWrap:"wrap"}}>
+              {[["#4ade80","4+ hrs"],["#818cf8","3–4 hrs"],["#fbbf24","2–3 hrs"],["#f87171","< 2 hrs"]].map(([c,l])=>(
+                <div key={l} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:8,height:8,borderRadius:2,background:c}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>{l}</span></div>
               ))}
             </div>
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Wake-ups per Night</h3>
+            <BarChart data={data.map(r=>({val:r.wu,label:r.d.slice(5)}))} color={v=>v.val<=3?"#4ade80":v.val<=5?"#fbbf24":"#f87171"} max={12} height={90}/>
+          </div>
+        </div>
+      )}
 
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 16px", color: "rgba(255,255,255,0.7)" }}>Wake-ups per Night</h3>
-              <BarChart
-                data={data.map(r => ({ val: r.wu, label: r.d.slice(5) }))}
-                color={(v) => v.val <= 3 ? "#4ade80" : v.val <= 5 ? "#fbbf24" : "#f87171"}
-                max={12}
-                height={100}
-              />
+      {/* ═══ FEEDING ═══ */}
+      {tab==="feeding"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+            {[{l:"Avg intake",v:"387",u:" ml",c:"#38bdf8"},{l:"Avg feeds",v:"3.6",u:"/night",c:"#a78bfa"},{l:"Peak night",v:"510",u:" ml",c:"#4ade80"}].map((s,i)=>(
+              <div key={i} style={{...C.card,padding:"12px 10px",textAlign:"center"}}>
+                <div style={{fontSize:9,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",color:"rgba(255,255,255,0.25)"}}>{s.l}</div>
+                <div style={{fontSize:20,fontWeight:700,color:s.c,margin:"4px 0 0"}}>{s.v}<span style={{fontSize:11,opacity:0.6}}>{s.u}</span></div>
+              </div>
+            ))}
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Nightly Milk Volume (ml)</h3>
+            <BarChart data={data.map(r=>({val:r.ml,label:r.d.slice(5)}))} color="#38bdf8" max={550} height={100}/>
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Breast Milk vs. Formula</h3>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {[{month:"January",bm:51,fm:24},{month:"February",bm:55,fm:34},{month:"March",bm:33,fm:32}].map(m=><FeedMixBar key={m.month}{...m}/>)}
             </div>
+            <div style={{display:"flex",gap:14,marginTop:10}}>
+              <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:8,height:8,borderRadius:2,background:"#818cf8"}}/><span style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>Breast Milk</span></div>
+              <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:8,height:8,borderRadius:2,background:"#fb923c"}}/><span style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>Formula</span></div>
+            </div>
+            <p style={{...C.text,margin:"10px 0 0",fontSize:12,color:"rgba(255,255,255,0.35)"}}>Formula share gradually increased from 32% in Jan to 49% in Mar, which is very common for mixed-fed babies.</p>
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Volume per Feed</h3>
+            {[{m:"January",v:116},{m:"February",v:105},{m:"March",v:98}].map(r=>(
+              <div key={r.m} style={{marginBottom:10}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
+                  <span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{r.m}</span>
+                  <span style={{color:"#38bdf8",fontWeight:700}}>{r.v} ml/feed</span>
+                </div>
+                <MiniBar value={r.v} max={140} color="#38bdf8"/>
+              </div>
+            ))}
+            <p style={{fontSize:12,color:"rgba(255,255,255,0.35)",lineHeight:1.6,margin:"6px 0 0"}}>The slight decrease per feed is offset by more feeds per night (3.5 → 3.8), keeping total intake stable.</p>
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Feed Count per Night</h3>
+            <BarChart data={data.map(r=>({val:r.fc,label:r.d.slice(5)}))} color="#a78bfa" max={6} height={80}/>
+          </div>
+        </div>
+      )}
 
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 4px", color: "rgba(255,255,255,0.7)" }}>Sleep Progression</h3>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: "0 0 14px" }}>Nights where the longest stretch exceeded 4 hours</p>
-              {["2026-01", "2026-02", "2026-03"].map(m => {
-                const md = data.filter(r => r.d.startsWith(m));
-                const over4h = md.filter(r => r.ls >= 240).length;
-                const pct = Math.round((over4h / md.length) * 100);
-                return (
-                  <div key={m} style={{ marginBottom: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{MONTHS[m]}</span>
-                      <span style={{ color: "#818cf8", fontWeight: 700 }}>{over4h}/{md.length} nights ({pct}%)</span>
-                    </div>
-                    <MiniBar value={pct} max={100} color="#818cf8" height={14} />
-                  </div>
-                );
-              })}
+      {/* ═══ DIGESTION ═══ */}
+      {tab==="digestion"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+            {[{l:"Avg poops",v:"1.8",u:"/night",c:"#fbbf24"},{l:"Avg gas",v:"3.4",u:"/night",c:"#94a3b8"},{l:"Avg nappies",v:"4.3",u:"/night",c:"#f472b6"}].map((s,i)=>(
+              <div key={i} style={{...C.card,padding:"12px 10px",textAlign:"center"}}>
+                <div style={{fontSize:9,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",color:"rgba(255,255,255,0.25)"}}>{s.l}</div>
+                <div style={{fontSize:20,fontWeight:700,color:s.c,margin:"4px 0 0"}}>{s.v}<span style={{fontSize:11,opacity:0.6}}>{s.u}</span></div>
+              </div>
+            ))}
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Gas Events per Night</h3>
+            <BarChart data={data.map(r=>({val:r.ga,label:r.d.slice(5)}))} color={v=>v.val>=7?"#f87171":v.val>=4?"#fbbf24":"#4ade80"} max={11} height={90}/>
+            <p style={{fontSize:12,color:"rgba(255,255,255,0.35)",lineHeight:1.6,margin:"10px 0 0"}}>The single biggest improvement. Down from 5.1 events/night in Jan (with spikes to 9–10) to a steady 2.4 in March.</p>
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Poops per Night</h3>
+            <BarChart data={data.map(r=>({val:r.po,label:r.d.slice(5)}))} color="#fbbf24" max={9} height={90}/>
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Poop-Free Nights</h3>
+            <p style={{fontSize:12,color:"rgba(255,255,255,0.35)",margin:"0 0 12px"}}>Nights with zero poops (less disruption)</p>
+            {[{m:"January",f:4,t:21},{m:"February",f:17,t:24},{m:"March",f:0,t:17}].map(r=>(
+              <div key={r.m} style={{marginBottom:10}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
+                  <span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{r.m}</span>
+                  <span style={{color:"#fbbf24",fontWeight:700}}>{r.f}/{r.t} ({pct(r.f,r.t)}%)</span>
+                </div>
+                <MiniBar value={pct(r.f,r.t)} max={100} color="#fbbf24"/>
+              </div>
+            ))}
+            <p style={{fontSize:12,color:"rgba(255,255,255,0.35)",lineHeight:1.6,margin:"6px 0 0"}}>Feb's calm period reflects normal gut maturation. March returned to more frequent poops with higher formula ratio.</p>
+          </div>
+          <div style={C.card}>
+            <h3 style={C.h3}>Nappy Changes per Night</h3>
+            <BarChart data={data.map(r=>({val:r.na,label:r.d.slice(5)}))} color="#f472b6" max={8} height={80}/>
+            <div style={{display:"flex",gap:14,marginTop:10,justifyContent:"center"}}>
+              {MK.map(m=>{const md=gm(data,m);return(
+                <div key={m} style={{textAlign:"center"}}>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>{ML[m]}</div>
+                  <div style={{fontSize:16,fontWeight:700,color:"#f472b6"}}>{avg(md.map(r=>r.na))}</div>
+                </div>
+              );})}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* FEEDING TAB */}
-        {activeTab === "feeding" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
-              <StatCard label="Avg Intake" value={Math.round(avg(data.map(r => r.ml)))} unit="ml/night" color="#38bdf8" icon="🍼" sparkData={data.map(r => r.ml)} />
-              <StatCard label="Avg Feeds" value={avg(data.map(r => r.fc))} unit="/night" color="#a78bfa" icon="🥛" sparkData={data.map(r => r.fc)} />
-              <StatCard label="Peak Intake" value={Math.max(...data.map(r => r.ml))} unit="ml" color="#4ade80" icon="📈" subtext={data.reduce((a,b) => a.ml > b.ml ? a : b).d} />
-            </div>
-
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 16px", color: "rgba(255,255,255,0.7)" }}>Nightly Milk Volume (ml)</h3>
-              <BarChart
-                data={data.map(r => ({ val: r.ml, label: r.d.slice(5) }))}
-                color="#38bdf8"
-                max={550}
-                height={120}
-              />
-            </div>
-
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 16px", color: "rgba(255,255,255,0.7)" }}>Breast Milk vs Formula Mix</h3>
-              <FeedingMixChart data={data} />
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 12, lineHeight: 1.5 }}>
-                Formula share has gradually increased from 32% in January to 49% in March, while total intake has remained stable.
-              </p>
-            </div>
-
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 4px", color: "rgba(255,255,255,0.7)" }}>Volume per Feed</h3>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: "0 0 14px" }}>Average ml consumed per feeding session</p>
-              {["2026-01", "2026-02", "2026-03"].map(m => {
-                const md = data.filter(r => r.d.startsWith(m));
-                const avgPerFeed = Math.round(avg(md.map(r => r.fc > 0 ? r.ml / r.fc : 0)));
-                return (
-                  <div key={m} style={{ marginBottom: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{MONTHS[m]}</span>
-                      <span style={{ color: "#38bdf8", fontWeight: 700 }}>{avgPerFeed} ml/feed</span>
-                    </div>
-                    <MiniBar value={avgPerFeed} max={140} color="#38bdf8" height={14} />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* DIGESTION TAB */}
-        {activeTab === "digestion" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
-              <StatCard label="Avg Poops" value={avg(data.map(r => r.po))} unit="/night" color="#fbbf24" icon="💩" sparkData={data.map(r => r.po)} />
-              <StatCard label="Avg Gassy Events" value={avg(data.map(r => r.ga))} unit="/night" color="#94a3b8" icon="💨" sparkData={data.map(r => r.ga)} />
-              <StatCard label="Avg Nappy Changes" value={avg(data.map(r => r.na))} unit="/night" color="#f472b6" icon="👶" sparkData={data.map(r => r.na)} />
-            </div>
-
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 16px", color: "rgba(255,255,255,0.7)" }}>Poops per Night</h3>
-              <BarChart
-                data={data.map(r => ({ val: r.po, label: r.d.slice(5) }))}
-                color="#fbbf24"
-                max={9}
-                height={100}
-              />
-            </div>
-
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 16px", color: "rgba(255,255,255,0.7)" }}>Gassiness Trend</h3>
-              <BarChart
-                data={data.map(r => ({ val: r.ga, label: r.d.slice(5) }))}
-                color={(v) => v.val >= 7 ? "#f87171" : v.val >= 4 ? "#fbbf24" : "#4ade80"}
-                max={11}
-                height={100}
-              />
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 12, lineHeight: 1.5 }}>
-                Gassiness dropped significantly from an avg of 5.1 events/night in January to 2.4 in March. This suggests Leo's digestive system is maturing.
-              </p>
-            </div>
-
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 20 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 4px", color: "rgba(255,255,255,0.7)" }}>Poop-Free Nights</h3>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: "0 0 14px" }}>Percentage of nights with zero poops (less disruptive sleep)</p>
-              {["2026-01", "2026-02", "2026-03"].map(m => {
-                const md = data.filter(r => r.d.startsWith(m));
-                const pf = md.filter(r => r.po === 0).length;
-                const pct = Math.round((pf / md.length) * 100);
-                return (
-                  <div key={m} style={{ marginBottom: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{MONTHS[m]}</span>
-                      <span style={{ color: "#fbbf24", fontWeight: 700 }}>{pf}/{md.length} nights ({pct}%)</span>
-                    </div>
-                    <MiniBar value={pct} max={100} color="#fbbf24" height={14} />
-                  </div>
-                );
-              })}
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 8, lineHeight: 1.5 }}>
-                February saw a notable spike in poop-free nights (71%), while March returned to more frequent nighttime pooping. This could be related to dietary changes or the shift toward more formula.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* INSIGHTS TAB */}
-        {activeTab === "insights" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, margin: "0 0 4px", background: "linear-gradient(135deg, #e0e7ff, #818cf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              Key Findings & Progress
-            </h3>
-            
-            <InsightCard
-              icon="🌙"
-              title="Sleep is Improving"
-              color="#818cf8"
-              text="Leo's longest uninterrupted sleep stretch grew from ~2h 54m (avg) in January to ~3h 25m in Feb/March. Nights with 4+ hour stretches increased, with the best night reaching 5h 53m on March 16. This is a clear sign of sleep consolidation."
-            />
-            
-            <InsightCard
-              icon="💨"
-              title="Gas & Colic Settling Down"
-              color="#4ade80"
-              text="Gassiness dropped 53% from January (5.1 events/night) to March (2.4/night). This is likely due to his digestive system maturing. Fewer gas disruptions means fewer unnecessary wake-ups and more restful sleep."
-            />
-            
-            <InsightCard
-              icon="🍼"
-              title="Feeding Volume Stable, Mix Shifting"
-              color="#38bdf8"
-              text="Total nightly intake has been steady around 370-400ml. The breast milk to formula ratio shifted from 68/32 in Jan to roughly 51/49 in March. Average volume per feed has stayed consistent, suggesting he's eating efficiently each session."
-            />
-            
-            <InsightCard
-              icon="⏰"
-              title="Wake-ups Trending Down"
-              color="#fb923c"
-              text="Average nightly wake-ups dipped from 5.5 in January to 4.8 in March. While the improvement is modest, it's moving in the right direction. Fewer gas-related disturbances are likely contributing to this."
-            />
-            
-            <InsightCard
-              icon="💩"
-              title="Digestion Patterns Are Variable"
-              color="#fbbf24"
-              text="February was notably calm with 71% poop-free nights, but March saw a return to more frequent nighttime poops (avg 2.9/night). This may correlate with the increased formula share or dietary changes. Worth monitoring."
-            />
-            
-            <InsightCard
-              icon="🏋️"
-              title="Motor Development Emerging"
-              color="#f472b6"
-              text="Tummy time sessions appeared in the logs starting mid-February and became more regular in March. On March 17, the nurse noted Leo 'started to crawl' during tummy time. Head positioning during sleep has also been more deliberate, with Leo actively changing positions himself."
-            />
-
-            <InsightCard
-              icon="🛁"
-              title="Bedtime Routine Established"
-              color="#a78bfa"
-              text="Consistent bath/massage before bed appears throughout the logs. By late February, the routine consolidated into 'bedtime routine done' as a standard entry, suggesting it's become an established pattern that helps Leo wind down."
-            />
-
-            <div style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 16,
-              padding: 20,
-              marginTop: 8,
-            }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 12px", color: "rgba(255,255,255,0.7)" }}>Summary Score by Month</h3>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: "0 0 16px" }}>
-                Composite score based on sleep duration, fewer wake-ups, and reduced gassiness (higher is better)
-              </p>
-              {["2026-01", "2026-02", "2026-03"].map(m => {
-                const md = data.filter(r => r.d.startsWith(m));
-                const sleepScore = Math.min(avg(md.map(r => r.ls)) / 300, 1) * 40;
-                const wakeScore = Math.max(0, (1 - avg(md.map(r => r.wu)) / 10)) * 30;
-                const gasScore = Math.max(0, (1 - avg(md.map(r => r.ga)) / 8)) * 30;
-                const total = Math.round(sleepScore + wakeScore + gasScore);
-                return (
-                  <div key={m} style={{ marginBottom: 14 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{MONTHS[m]}</span>
-                      <span style={{ color: total >= 65 ? "#4ade80" : total >= 50 ? "#fbbf24" : "#fb923c", fontWeight: 700, fontSize: 16 }}>{total}/100</span>
-                    </div>
-                    <div style={{ display: "flex", gap: 3, height: 18 }}>
-                      <div style={{ flex: sleepScore, background: "#818cf8", borderRadius: "4px 0 0 4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {sleepScore > 8 && <span style={{ fontSize: 8, color: "white", fontWeight: 700 }}>SLEEP</span>}
-                      </div>
-                      <div style={{ flex: wakeScore, background: "#fb923c", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {wakeScore > 8 && <span style={{ fontSize: 8, color: "white", fontWeight: 700 }}>CALM</span>}
-                      </div>
-                      <div style={{ flex: gasScore, background: "#4ade80", borderRadius: "0 4px 4px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {gasScore > 8 && <span style={{ fontSize: 8, color: "white", fontWeight: 700 }}>DIGEST</span>}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
