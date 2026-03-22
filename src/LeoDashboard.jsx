@@ -35,14 +35,48 @@ function nightInsight(r) {
 
 function Pill({text,color="#4ade80",bg}){return <span style={{fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20,background:bg||color+"18",color,whiteSpace:"nowrap",display:"inline-block"}}>{text}</span>;}
 
-function Spark({data,color,h=44}){
+function Spark({data,color,h=44,dates,fmtVal}){
+  const [hov,setHov]=useState(null);
+  const ref=useRef(null);
   if(!data.length)return null;
   const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1,w=200,p=6;
   const pts=data.map((v,i)=>{const x=data.length>1?(i/(data.length-1))*(w-p*2)+p:w/2;const y=h-p-((v-mn)/rng)*(h-p*2);return[x,y];});
   const line=pts.map(([x,y])=>x+","+y).join(' ');
   const area=line+" "+pts[pts.length-1][0]+","+h+" "+pts[0][0]+","+h;
-  const id="sg"+color.replace('#','')+""+h;
-  return(<svg viewBox={"0 0 "+w+" "+h} style={{width:"100%",height:h,display:"block"}} preserveAspectRatio="none"><defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity="0.25"/><stop offset="100%" stopColor={color} stopOpacity="0.01"/></linearGradient></defs><polygon points={area} fill={"url(#"+id+")"}/><polyline points={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85"/></svg>);
+  const id="sg"+color.replace('#','')+""+h+data.length;
+  function getIdx(e){
+    if(!ref.current)return null;
+    const rect=ref.current.getBoundingClientRect();
+    const clientX=e.touches?e.touches[0].clientX:e.clientX;
+    const pct=(clientX-rect.left)/rect.width;
+    const idx=Math.round(pct*(data.length-1));
+    return Math.max(0,Math.min(data.length-1,idx));
+  }
+  function onMove(e){setHov(getIdx(e));}
+  function onLeave(){setHov(null);}
+  const hovPt=hov!==null?pts[hov]:null;
+  const hovDate=hov!==null&&dates?dates[hov]:null;
+  const hovVal=hov!==null?data[hov]:null;
+  const dispVal=hovVal!==null?(fmtVal?fmtVal(hovVal):hovVal):null;
+  const dateLbl=hovDate?new Date(hovDate+"T12:00:00").toLocaleDateString('en-GB',{day:'numeric',month:'short'}):"";
+  return(
+    <div style={{position:"relative",touchAction:"none"}}>
+      <svg ref={ref} viewBox={"0 0 "+w+" "+h} style={{width:"100%",height:h,display:"block",cursor:"crosshair"}} preserveAspectRatio="none"
+        onMouseMove={onMove} onMouseLeave={onLeave}
+        onTouchStart={onMove} onTouchMove={onMove} onTouchEnd={()=>setTimeout(onLeave,1800)}>
+        <defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity="0.25"/><stop offset="100%" stopColor={color} stopOpacity="0.01"/></linearGradient></defs>
+        <polygon points={area} fill={"url(#"+id+")"}/>
+        <polyline points={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.85"/>
+        {hovPt&&<><line x1={hovPt[0]} y1={0} x2={hovPt[0]} y2={h} stroke={color} strokeWidth="0.5" strokeDasharray="2,2" opacity="0.5"/><circle cx={hovPt[0]} cy={hovPt[1]} r="3.5" fill={color} stroke="#0b0b13" strokeWidth="1.5"/></>}
+      </svg>
+      {hov!==null&&hovPt&&(
+        <div style={{position:"absolute",top:-6,left:hovPt[0]/w*100+"%",transform:"translateX("+(hov<data.length*0.25?"0%":hov>data.length*0.75?"-100%":"-50%")+")",background:"rgba(12,12,20,0.95)",border:"1px solid "+color+"40",borderRadius:8,padding:"5px 9px",zIndex:10,pointerEvents:"none",whiteSpace:"nowrap",boxShadow:"0 4px 16px rgba(0,0,0,0.5)"}}>
+          {dateLbl&&<span style={{fontSize:10,color:"rgba(255,255,255,0.45)",marginRight:6}}>{dateLbl}</span>}
+          <span style={{fontSize:13,fontWeight:800,color}}>{dispVal}</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ChartBars({data, colorFn, max, h=120, unit="", rangeLow, rangeHigh, rangeLabel, rangeColor="#818cf8"}) {
@@ -126,10 +160,10 @@ function MRow({icon,label,jan,feb,mar,unit="",color="#818cf8"}){
   </div>);
 }
 
-function MiniExhibit({ data, color, labelLeft, labelRight, h=30 }) {
+function MiniExhibit({ data, color, labelLeft, labelRight, h=30, dates, fmtVal }) {
   return (
     <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.04)" }}>
-      <Spark data={data} color={color} h={h} />
+      <Spark data={data} color={color} h={h} dates={dates} fmtVal={fmtVal} />
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
         <span style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>{labelLeft}</span>
         <span style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>{labelRight}</span>
@@ -198,7 +232,7 @@ export default function LeoDashboard(){
       {[{l:"Jan",v:ms.jan.sleep,c:"#fb923c"},{l:"Feb",v:ms.feb.sleep,c:"#818cf8"},{l:"Mar",v:ms.mar.sleep,c:"#4ade80"}].map(m=>(<div key={m.l} style={{textAlign:"center",padding:"10px 6px",background:"rgba(255,255,255,0.02)",borderRadius:10}}><div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.3)",marginBottom:4}}>{m.l}</div><div style={{fontSize:18,fontWeight:800,color:m.c}}>{fmt(m.v)}</div><div style={{fontSize:10,color:"rgba(255,255,255,0.25)",marginTop:2}}>avg stretch</div></div>))}
     </div>
     <p style={pr}>Longest uninterrupted stretch grew from 2h 54m in Jan to 3h 25m in Feb/Mar. Best night was 5h 53m (Mar 16). Wake-ups decreased from 5.5 to 4.8 per night.</p>
-    <MiniExhibit data={data.map(r=>r.ls)} color="#818cf8" labelLeft="Jan 10" labelRight="Mar 21" />
+    <MiniExhibit data={data.map(r=>r.ls)} dates={data.map(r=>r.d)} fmtVal={v=>fmt(v)} color="#818cf8" labelLeft="Jan 10" labelRight="Mar 21" />
     <BenchBox color="#818cf8"><p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}><span style={{color:"rgba(255,255,255,0.6)",fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:"0.04em"}}>vs. typical: </span>At 2-3 months (Jan), 2-4 hour stretches are normal. By 3-4 months (Feb), some babies start doing 4-6 hour blocks. By 4-4.5 months (Mar), many babies can manage 5-8 hours. Leo's trend from ~3h to 3.5h is steady progress, and his best nights (5h 53m) show he's capable of age-appropriate longer stretches. The 4-month sleep regression window can also cause temporary setbacks, which may explain some of the variability.</p></BenchBox>
   </div>
 
@@ -209,7 +243,7 @@ export default function LeoDashboard(){
       {[{l:"Jan",ml:Math.round(ms.jan.milk),pf:Math.round(ms.jan.perFeed),bmp:ms.jan.bmPct,fmp:ms.jan.fmPct},{l:"Feb",ml:Math.round(ms.feb.milk),pf:Math.round(ms.feb.perFeed),bmp:ms.feb.bmPct,fmp:ms.feb.fmPct},{l:"Mar",ml:Math.round(ms.mar.milk),pf:Math.round(ms.mar.perFeed),bmp:ms.mar.bmPct,fmp:ms.mar.fmPct}].map(m=>(<div key={m.l} style={{textAlign:"center",padding:"10px 6px",background:"rgba(255,255,255,0.02)",borderRadius:10}}><div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.3)",marginBottom:4}}>{m.l}</div><div style={{fontSize:18,fontWeight:800,color:"#38bdf8"}}>{m.ml}<span style={{fontSize:11,fontWeight:500,opacity:0.5}}> ml</span></div><div style={{fontSize:10,color:"rgba(255,255,255,0.25)",marginTop:3,lineHeight:1.5}}>{m.pf} ml/feed<br/>BM {m.bmp}% \u00b7 FM {m.fmp}%</div></div>))}
     </div>
     <p style={pr}>Nightly intake holds at 370-400ml. Volume per feed is consistent (98-116ml). Formula share has grown from 32% in Jan to 49% in Mar.</p>
-    <MiniExhibit data={data.map(r=>r.ml)} color="#38bdf8" labelLeft="Jan 10" labelRight="Mar 21" />
+    <MiniExhibit data={data.map(r=>r.ml)} dates={data.map(r=>r.d)} fmtVal={v=>v+" ml"} color="#38bdf8" labelLeft="Jan 10" labelRight="Mar 21" />
     <BenchBox color="#38bdf8"><p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}><span style={{color:"rgba(255,255,255,0.6)",fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:"0.04em"}}>vs. typical: </span>At 2-3 months, 120-150ml per feed is standard; by 4-4.5 months it rises to 150-200ml. Leo's nighttime total of ~370-400ml plus daytime feeds likely puts daily intake in the expected 700-1000ml range for his age. The BM/FM shift toward 50/50 is very common as babies grow and demand increases.</p></BenchBox>
   </div>
 
@@ -220,7 +254,7 @@ export default function LeoDashboard(){
       {[{l:"Jan",po:ms.jan.poo,pf:ms.jan.pooFree,ga:ms.jan.gas},{l:"Feb",po:ms.feb.poo,pf:ms.feb.pooFree,ga:ms.feb.gas},{l:"Mar",po:ms.mar.poo,pf:ms.mar.pooFree,ga:ms.mar.gas}].map(m=>(<div key={m.l} style={{textAlign:"center",padding:"10px 6px",background:"rgba(255,255,255,0.02)",borderRadius:10}}><div style={{fontSize:10,fontWeight:600,color:"rgba(255,255,255,0.3)",marginBottom:4}}>{m.l}</div><div style={{fontSize:16,fontWeight:800,color:"#fbbf24"}}>{m.po} <span style={{fontSize:10,fontWeight:500,opacity:0.5}}>{"\u{1F4A9}"}/n</span></div><div style={{fontSize:16,fontWeight:800,color:"#94a3b8",marginTop:2}}>{m.ga} <span style={{fontSize:10,fontWeight:500,opacity:0.5}}>{"\u{1F4A8}"}/n</span></div><div style={{fontSize:10,color:"rgba(255,255,255,0.25)",marginTop:3}}>{m.pf}% poo-free</div></div>))}
     </div>
     <p style={pr}>Gassiness dropped 53% (5.1 to 2.4/night). Poops dipped dramatically in Feb (71% poop-free) but returned in Mar (2.9/night), likely linked to increased formula.</p>
-    <MiniExhibit data={data.map(r=>r.ga)} color="#94a3b8" labelLeft="Jan (5.1/n)" labelRight="Mar (2.4/n)" />
+    <MiniExhibit data={data.map(r=>r.ga)} dates={data.map(r=>r.d)} fmtVal={v=>v+" events"} color="#94a3b8" labelLeft="Jan (5.1/n)" labelRight="Mar (2.4/n)" />
     <BenchBox color="#fbbf24"><p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.65,margin:0}}><span style={{color:"rgba(255,255,255,0.6)",fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:"0.04em"}}>vs. typical: </span>Gas and colic peak around 6 weeks and typically resolve by 3-4 months. Leo was right in that resolution window during Jan-Feb, and by March (4+ months) his gas has dropped 53%, exactly as expected. Poop frequency often drops around 2-3 months as the gut matures. Feb's dip fits that timeline perfectly. Mar's uptick with more formula is common since formula digests differently from breast milk.</p></BenchBox>
   </div>
 
@@ -310,17 +344,17 @@ export default function LeoDashboard(){
   <button onClick={()=>goTo("overview")} style={bkBtn}>{"\u2190"} Back to Overview</button>
   <h3 style={{fontSize:16,fontWeight:800,color:"#e0e7ff",margin:0}}>Key Findings</h3>
   {[
-    {icon:"\u{1F319}",title:"Sleep is consolidating",color:"#818cf8",text:"Longest stretch grew 18% from Jan to Mar. 4+ hour stretches went from occasional to more regular. The best night (5h 53m) shows what Leo is capable of.",data:data.map(r=>r.ls),ll:"Jan avg: 2h54m",lr:"Mar avg: 3h25m"},
-    {icon:"\u{1F4A8}",title:"Gas has settled dramatically",color:"#4ade80",text:"The single biggest win. From 5.1 events per night in Jan to 2.4 in Mar. Fewer pick-ups for gas means fewer disruptions and better quality sleep.",data:data.map(r=>r.ga),ll:"Jan: 5.1/night",lr:"Mar: 2.4/night"},
-    {icon:"\u{1F37C}",title:"Feeding is efficient and steady",color:"#38bdf8",text:"Total nightly intake hasn't wavered. The BM/FM mix is shifting toward 50/50, which is common. Per-feed volume shows Leo eats well each session rather than snacking.",data:data.map(r=>r.ml),ll:"Avg: ~385 ml/night",lr:"Consistent"},
-    {icon:"\u{1F4A9}",title:"Digestion is variable but normal",color:"#fbbf24",text:"Feb's dramatic dip in nighttime poops was gut maturation. March's return may be formula-related. The nurse consistently flags bottom redness, so barrier cream remains important.",data:data.map(r=>r.po),ll:"Jan: 2.6/n",lr:"Mar: 2.9/n"},
+    {icon:"\u{1F319}",title:"Sleep is consolidating",color:"#818cf8",text:"Longest stretch grew 18% from Jan to Mar. 4+ hour stretches went from occasional to more regular. The best night (5h 53m) shows what Leo is capable of.",data:data.map(r=>r.ls),dates:data.map(r=>r.d),fmtV:v=>fmt(v),ll:"Jan avg: 2h54m",lr:"Mar avg: 3h25m"},
+    {icon:"\u{1F4A8}",title:"Gas has settled dramatically",color:"#4ade80",text:"The single biggest win. From 5.1 events per night in Jan to 2.4 in Mar. Fewer pick-ups for gas means fewer disruptions and better quality sleep.",data:data.map(r=>r.ga),dates:data.map(r=>r.d),fmtV:v=>v+" events",ll:"Jan: 5.1/night",lr:"Mar: 2.4/night"},
+    {icon:"\u{1F37C}",title:"Feeding is efficient and steady",color:"#38bdf8",text:"Total nightly intake hasn't wavered. The BM/FM mix is shifting toward 50/50, which is common. Per-feed volume shows Leo eats well each session rather than snacking.",data:data.map(r=>r.ml),dates:data.map(r=>r.d),fmtV:v=>v+" ml",ll:"Avg: ~385 ml/night",lr:"Consistent"},
+    {icon:"\u{1F4A9}",title:"Digestion is variable but normal",color:"#fbbf24",text:"Feb's dramatic dip in nighttime poops was gut maturation. March's return may be formula-related. The nurse consistently flags bottom redness, so barrier cream remains important.",data:data.map(r=>r.po),dates:data.map(r=>r.d),fmtV:v=>v+" poops",ll:"Jan: 2.6/n",lr:"Mar: 2.9/n"},
     {icon:"\u{1F9D2}",title:"Motor milestones emerging",color:"#f472b6",text:"Tummy time is now routine. Early scooting/crawling attempts noted Mar 17. Active head repositioning during sleep shows growing strength and independence."},
     {icon:"\u{1F6C1}",title:"Bedtime routine established",color:"#a78bfa",text:"A consistent bath and massage before bed became standard by late February. This is one of the most evidence-backed strategies for improving infant sleep."},
   ].map((ins,i)=>(
     <div key={i} style={{...cd,borderLeft:"3px solid "+ins.color+"30"}}>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}><span style={{fontSize:18}}>{ins.icon}</span><span style={{fontSize:13,fontWeight:700,color:ins.color}}>{ins.title}</span></div>
       <p style={{...pr,fontSize:12.5}}>{ins.text}</p>
-      {ins.data && <MiniExhibit data={ins.data} color={ins.color} labelLeft={ins.ll} labelRight={ins.lr} />}
+      {ins.data && <MiniExhibit data={ins.data} dates={ins.dates} fmtVal={ins.fmtV} color={ins.color} labelLeft={ins.ll} labelRight={ins.lr} />}
     </div>
   ))}
   <div style={cd}><h3 style={ct}>Monthly Wellness Score</h3><p style={{fontSize:12,color:"rgba(255,255,255,0.3)",margin:"0 0 14px"}}>Sleep duration (40%) + fewer wake-ups (30%) + reduced gas (30%)</p>
