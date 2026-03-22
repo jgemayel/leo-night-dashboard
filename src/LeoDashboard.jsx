@@ -40,6 +40,7 @@ const NORMS = {
   gasMid:   [[8,4],[10,3],[12,2],[14,1.5],[16,1],[18,1],[20,0.5]],
   pooLo:    [[8,0],[10,0],[12,0],[14,0],[16,0],[18,0],[20,0]],
   pooHi:    [[8,5],[10,4],[12,3],[14,3],[16,3],[18,3],[20,3]],
+  pooMid:   [[8,2.5],[10,2],[12,1.5],[14,1.5],[16,1.5],[18,1.5],[20,1.5]],
   perfeedLo:  [[8,90],[10,100],[12,110],[14,120],[16,130],[18,140],[20,150]],
   perfeedHi:  [[8,150],[10,160],[12,170],[14,180],[16,200],[18,210],[20,220]],
   perfeedMid: [[8,120],[10,130],[12,140],[14,150],[16,165],[18,175],[20,185]],
@@ -51,7 +52,9 @@ const NORMS = {
 // Returns [lo, hi, mid] for a metric at a given date
 function normAt(d, metric) {
   const w = ageWks(d);
-  return [lerp(w, NORMS[metric+"Lo"]), lerp(w, NORMS[metric+"Hi"]), lerp(w, NORMS[metric+"Mid"])];
+  const lo = NORMS[metric+"Lo"], hi = NORMS[metric+"Hi"], mid = NORMS[metric+"Mid"];
+  if (!lo || !hi || !mid) return [0, 0, 0];
+  return [lerp(w, lo), lerp(w, hi), lerp(w, mid)];
 }
 
 function av(a){return a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length*10)/10:0;}
