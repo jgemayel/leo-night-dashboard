@@ -40,6 +40,12 @@ const NORMS = {
   gasMid:   [[8,4],[10,3],[12,2],[14,1.5],[16,1],[18,1],[20,0.5]],
   pooLo:    [[8,0],[10,0],[12,0],[14,0],[16,0],[18,0],[20,0]],
   pooHi:    [[8,5],[10,4],[12,3],[14,3],[16,3],[18,3],[20,3]],
+  perfeedLo:  [[8,90],[10,100],[12,110],[14,120],[16,130],[18,140],[20,150]],
+  perfeedHi:  [[8,150],[10,160],[12,170],[14,180],[16,200],[18,210],[20,220]],
+  perfeedMid: [[8,120],[10,130],[12,140],[14,150],[16,165],[18,175],[20,185]],
+  feedcountLo:[[8,3],[10,3],[12,2],[14,2],[16,2],[18,2],[20,1]],
+  feedcountHi:[[8,5],[10,5],[12,4],[14,4],[16,3],[18,3],[20,3]],
+  feedcountMid:[[8,4],[10,4],[12,3],[14,3],[16,2.5],[18,2.5],[20,2]],
 };
 
 // Returns [lo, hi, mid] for a metric at a given date
@@ -401,9 +407,13 @@ export default function LeoDashboard(){
       <div style={{display:"flex",flexDirection:"column",gap:6,paddingBottom:24}}><div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:9,height:9,borderRadius:3,background:"#818cf8"}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.4)"}}>BM</span></div><div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:9,height:9,borderRadius:3,background:"#fb923c"}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.4)"}}>FM</span></div></div>
     </div>
   </div>
-  <div style={cd}><h3 style={ct}>Volume per Feed</h3>
-    {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MF[mk]}</span><span style={{color:"#38bdf8",fontWeight:700}}>{Math.round(m.perFeed)} ml/feed</span></div><MP value={m.perFeed} max={180} color="#38bdf8"/></div>);})}
-    <div style={{marginTop:6,padding:"6px 10px",background:"rgba(56,189,248,0.05)",borderRadius:8,border:"1px dashed rgba(56,189,248,0.15)"}}><span style={{fontSize:10,color:"rgba(56,189,248,0.6)",fontWeight:600}}>Typical range: 120-150 ml/feed at 2mo, rising to 150-200 ml/feed by 4.5mo</span></div>
+  <div style={cd}><h3 style={ct}>Average Volume per Feed (ml)</h3>
+    <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",margin:"-8px 0 10px"}}>Total milk divided by number of feeds that night</p>
+    <ChartBars data={data.map(r=>({val:r.fc>0?Math.round(r.ml/r.fc):0,date:r.d,label:r.d.slice(5),fmtVal:r.fc>0?Math.round(r.ml/r.fc)+" ml":"N/A",rec:r}))} colorFn="#a78bfa" max={220} h={120} normKey="perfeed" rangeLabel="Age-adjusted expected per feed" rangeColor="#a78bfa"/>
+  </div>
+  <div style={cd}><h3 style={ct}>Number of Feeds per Night</h3>
+    <ChartBars data={cData(data,"fc")} colorFn={v=>v<=3?"#4ade80":v<=4?"#38bdf8":"#fb923c"} max={6} h={100} normKey="feedcount" rangeLabel="Age-adjusted expected feeds" rangeColor="#38bdf8"/>
+    <p style={{...pr,fontSize:12,marginTop:10}}>As babies grow, they take in more per feed and need fewer sessions overnight. Leo is gradually shifting from 3-5 feeds to a more consistent 3-4.</p>
   </div>
 </div>)}
 
