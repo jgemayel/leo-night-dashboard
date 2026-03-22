@@ -8,6 +8,45 @@ const ML={"2026-01":"Jan","2026-02":"Feb","2026-03":"Mar"};
 const MF={"2026-01":"January","2026-02":"February","2026-03":"March"};
 const MA={"2026-01":"~2-3 months old","2026-02":"~3-4 months old","2026-03":"~4-4.5 months old"};
 function ageAt(d){const dt=new Date(d);const ms=dt-BORN;const wk=Math.floor(ms/(7*24*60*60*1000));return `${wk} weeks`;}
+function ageWks(d){return (new Date(d+"T12:00:00")-BORN)/(7*24*60*60*1000);}
+
+// Linear interpolation through pediatric reference points [weeks, value]
+function lerp(wks, table) {
+  if (wks <= table[0][0]) return table[0][1];
+  if (wks >= table[table.length-1][0]) return table[table.length-1][1];
+  for (let i = 0; i < table.length - 1; i++) {
+    if (wks >= table[i][0] && wks <= table[i+1][0]) {
+      const t = (wks - table[i][0]) / (table[i+1][0] - table[i][0]);
+      return table[i][1] + t * (table[i+1][1] - table[i][1]);
+    }
+  }
+  return table[table.length-1][1];
+}
+
+// Pediatric norms: [age_in_weeks, value]
+// Sources: AAP, WHO growth guidelines, general pediatric consensus
+const NORMS = {
+  sleepLo:  [[8,90],[10,120],[12,150],[14,180],[16,210],[18,240],[20,270]],
+  sleepHi:  [[8,180],[10,210],[12,240],[14,300],[16,330],[18,360],[20,420]],
+  sleepMid: [[8,135],[10,165],[12,195],[14,240],[16,270],[18,300],[20,345]],
+  wakeLo:   [[8,2],[10,2],[12,2],[14,1],[16,1],[18,1],[20,1]],
+  wakeHi:   [[8,5],[10,4],[12,4],[14,3],[16,3],[18,3],[20,2]],
+  wakeMid:  [[8,3.5],[10,3],[12,3],[14,2],[16,2],[18,2],[20,1.5]],
+  milkLo:   [[8,280],[10,300],[12,300],[14,320],[16,320],[18,320],[20,300]],
+  milkHi:   [[8,450],[10,460],[12,480],[14,500],[16,500],[18,480],[20,460]],
+  milkMid:  [[8,365],[10,380],[12,390],[14,410],[16,410],[18,400],[20,380]],
+  gasLo:    [[8,1],[10,1],[12,0],[14,0],[16,0],[18,0],[20,0]],
+  gasHi:    [[8,7],[10,5],[12,4],[14,3],[16,2],[18,2],[20,1]],
+  gasMid:   [[8,4],[10,3],[12,2],[14,1.5],[16,1],[18,1],[20,0.5]],
+  pooLo:    [[8,0],[10,0],[12,0],[14,0],[16,0],[18,0],[20,0]],
+  pooHi:    [[8,5],[10,4],[12,3],[14,3],[16,3],[18,3],[20,3]],
+};
+
+// Returns [lo, hi, mid] for a metric at a given date
+function normAt(d, metric) {
+  const w = ageWks(d);
+  return [lerp(w, NORMS[metric+"Lo"]), lerp(w, NORMS[metric+"Hi"]), lerp(w, NORMS[metric+"Mid"])];
+}
 
 function av(a){return a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length*10)/10:0;}
 function sm(a){return a.reduce((s,v)=>s+v,0);}
@@ -79,7 +118,7 @@ function Spark({data,color,h=44,dates,fmtVal}){
   );
 }
 
-function ChartBars({data, colorFn, max, h=120, unit="", rangeLow, rangeHigh, rangeLabel, rangeColor="#818cf8"}) {
+function ChartBars({data, colorFn, max, h=120, unit="", normKey, rangeLabel, rangeColor="#818cf8"}) {
   const [hov, setHov] = useState(null);
   const monthBreaks = [];
   const dayTicks = [];
@@ -91,14 +130,51 @@ function ChartBars({data, colorFn, max, h=120, unit="", rangeLow, rangeHigh, ran
     if (day === 15) dayTicks.push({ idx: i, day });
   }
   const barH = h - 24;
-  const rY1 = rangeLow != null ? barH - (rangeLow / max) * barH : null;
-  const rY2 = rangeHigh != null ? barH - (rangeHigh / max) * barH : null;
+  const n = data.length;
+  // Compute age-based reference curves
+  const refPts = normKey ? data.map(v => normAt(v.date, normKey)) : null;
+  // SVG path helpers
+  function svgX(i) { return n > 1 ? (i / (n - 1)) * 100 : 50; }
+  function svgY(val) { return barH - (Math.min(val, max) / max) * barH; }
+
   return (
     <div style={{ position: "relative", userSelect: "none" }}>
-      {rY1 != null && rY2 != null && (
-        <div style={{ position: "absolute", top: Math.min(rY1, rY2), left: 0, right: 0, height: Math.abs(rY1 - rY2), background: rangeColor + "0a", borderTop: "1px dashed " + rangeColor + "30", borderBottom: "1px dashed " + rangeColor + "30", pointerEvents: "none", zIndex: 0 }}>
-          {rangeLabel && <span style={{ position: "absolute", right: 2, top: -13, fontSize: 9, color: rangeColor + "70", fontWeight: 600, whiteSpace: "nowrap" }}>{rangeLabel}</span>}
-        </div>
+      {/* Age-adjusted reference band as SVG overlay */}
+      {refPts && (
+        <svg viewBox={`0 0 100 ${barH}`} preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: barH, pointerEvents: "none", zIndex: 0 }}>
+          <defs>
+            <linearGradient id={"rb-"+normKey} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={rangeColor} stopOpacity="0.08" />
+              <stop offset="100%" stopColor={rangeColor} stopOpacity="0.03" />
+            </linearGradient>
+          </defs>
+          {/* Filled band between lo and hi */}
+          <polygon
+            points={
+              refPts.map((r, i) => `${svgX(i)},${svgY(r[1])}`).join(' ') + ' ' +
+              [...refPts].reverse().map((r, i) => `${svgX(n - 1 - i)},${svgY(r[0])}`).join(' ')
+            }
+            fill={`url(#rb-${normKey})`}
+          />
+          {/* Upper bound dashed line */}
+          <polyline
+            points={refPts.map((r, i) => `${svgX(i)},${svgY(r[1])}`).join(' ')}
+            fill="none" stroke={rangeColor} strokeWidth="0.3" strokeDasharray="1.5,1.5" opacity="0.35"
+          />
+          {/* Lower bound dashed line */}
+          <polyline
+            points={refPts.map((r, i) => `${svgX(i)},${svgY(r[0])}`).join(' ')}
+            fill="none" stroke={rangeColor} strokeWidth="0.3" strokeDasharray="1.5,1.5" opacity="0.35"
+          />
+          {/* Midline (expected average) */}
+          <polyline
+            points={refPts.map((r, i) => `${svgX(i)},${svgY(r[2])}`).join(' ')}
+            fill="none" stroke={rangeColor} strokeWidth="0.5" opacity="0.5"
+          />
+        </svg>
+      )}
+      {rangeLabel && refPts && (
+        <span style={{ position: "absolute", right: 2, top: -13, fontSize: 9, color: rangeColor + "70", fontWeight: 600, whiteSpace: "nowrap", zIndex: 2 }}>{rangeLabel}</span>
       )}
       <div style={{ display: "flex", alignItems: "flex-end", height: barH, position: "relative", zIndex: 1 }}>
         {data.map((v, i) => {
@@ -129,10 +205,16 @@ function ChartBars({data, colorFn, max, h=120, unit="", rangeLow, rangeHigh, ran
         <div style={{ position: "absolute", bottom: barH + 30, left: (hov / data.length) * 100 + "%", transform: "translateX(" + (hov < data.length * 0.3 ? "0%" : hov > data.length * 0.7 ? "-100%" : "-50%") + ")", background: "rgba(12,12,20,0.96)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: "10px 14px", zIndex: 20, minWidth: 170, maxWidth: 250, boxShadow: "0 8px 30px rgba(0,0,0,0.6)", pointerEvents: "none" }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>
             {new Date(data[hov].date + "T12:00:00").toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+            <span style={{ fontWeight: 500, opacity: 0.6, marginLeft: 6 }}>{ageAt(data[hov].date)}</span>
           </div>
           <div style={{ fontSize: 22, fontWeight: 800, color: typeof colorFn === 'function' ? colorFn(data[hov].val) : colorFn, lineHeight: 1 }}>
             {data[hov].fmtVal || data[hov].val}{unit ? " " + unit : ""}
           </div>
+          {refPts && refPts[hov] && (
+            <div style={{ fontSize: 10, color: rangeColor + "90", marginTop: 5 }}>
+              Expected at {ageAt(data[hov].date)}: {normKey==="sleep"?fmt(Math.round(refPts[hov][0]))+"-"+fmt(Math.round(refPts[hov][1])):Math.round(refPts[hov][0])+"-"+Math.round(refPts[hov][1])}{normKey!=="sleep"&&unit?" "+unit:""}
+            </div>
+          )}
           {data[hov].rec && (
             <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6, lineHeight: 1.5, borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 6 }}>
               {nightInsight(data[hov].rec)}
@@ -285,7 +367,7 @@ export default function LeoDashboard(){
   {/* Nightly sleep bars */}
   <div style={cd}>
     <h3 style={ct}>Longest Sleep Stretch per Night</h3>
-    <ChartBars data={cData(data,"ls",fmt)} colorFn={v=>v>=300?"#4ade80":v>=240?"#22d3ee":v>=180?"#818cf8":v>=120?"#fbbf24":"#f87171"} max={400} h={140} rangeLow={120} rangeHigh={300} rangeLabel="Typical 2-4mo range (2-4h)" rangeColor="#818cf8"/>
+    <ChartBars data={cData(data,"ls",fmt)} colorFn={v=>v>=300?"#4ade80":v>=240?"#22d3ee":v>=180?"#818cf8":v>=120?"#fbbf24":"#f87171"} max={400} h={140} normKey="sleep" rangeLabel="Age-adjusted expected range" rangeColor="#818cf8"/>
     <div style={{display:"flex",gap:12,marginTop:8,flexWrap:"wrap"}}>
       {[["#4ade80","5+ hrs"],["#22d3ee","4-5 hrs"],["#818cf8","3-4 hrs"],["#fbbf24","2-3 hrs"],["#f87171","< 2 hrs"]].map(([c,l])=>(<div key={l} style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:7,height:7,borderRadius:2,background:c}}/><span style={{fontSize:9,color:"rgba(255,255,255,0.3)"}}>{l}</span></div>))}
     </div>
@@ -298,8 +380,8 @@ export default function LeoDashboard(){
   <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
     {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];const colors=["#fb923c","#818cf8","#4ade80"];return(<div key={mk} style={{...cd,textAlign:"center",padding:"14px 10px"}}><div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.3)",textTransform:"uppercase"}}>{ML[mk]}</div><div style={{fontSize:22,fontWeight:800,color:colors[i],margin:"6px 0 2px"}}>{fmt(m.sleep)}</div><div style={{fontSize:9,color:"rgba(255,255,255,0.25)"}}>avg stretch</div><div style={{fontSize:13,fontWeight:700,color:colors[i],opacity:0.6,marginTop:4}}>Best: {fmt(m.bestSleep)}</div><div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:4}}>Wakeups: {m.wakeups}/n</div><div style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>4+ hr: {m.over4h}%</div></div>);})}
   </div>
-  <div style={cd}><h3 style={ct}>Longest Sleep Stretch per Night</h3><ChartBars data={cData(data,"ls",fmt)} colorFn={v=>v>=300?"#4ade80":v>=240?"#22d3ee":v>=180?"#818cf8":v>=120?"#fbbf24":"#f87171"} max={400} h={140} rangeLow={120} rangeHigh={300} rangeLabel="Typical 2-4.5mo range (2-5h)" rangeColor="#818cf8"/></div>
-  <div style={cd}><h3 style={ct}>Wake-ups per Night</h3><ChartBars data={cData(data,"wu")} colorFn={v=>v<=3?"#4ade80":v<=5?"#fbbf24":"#f87171"} max={12} h={110} rangeLow={1} rangeHigh={3} rangeLabel="Typical 3-4.5mo (1-3 wakes)" rangeColor="#fb923c"/></div>
+  <div style={cd}><h3 style={ct}>Longest Sleep Stretch per Night</h3><ChartBars data={cData(data,"ls",fmt)} colorFn={v=>v>=300?"#4ade80":v>=240?"#22d3ee":v>=180?"#818cf8":v>=120?"#fbbf24":"#f87171"} max={400} h={140} normKey="sleep" rangeLabel="Age-adjusted expected range" rangeColor="#818cf8"/></div>
+  <div style={cd}><h3 style={ct}>Wake-ups per Night</h3><ChartBars data={cData(data,"wu")} colorFn={v=>v<=3?"#4ade80":v<=5?"#fbbf24":"#f87171"} max={12} h={110} normKey="wake" rangeLabel="Age-adjusted expected range" rangeColor="#fb923c"/></div>
   <div style={cd}><h3 style={ct}>4+ Hour Stretch Nights</h3>
     {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MF[mk]}</span><span style={{color:"#818cf8",fontWeight:700}}>{m.over4h}%</span></div><MP value={m.over4h} max={100} color="#818cf8"/></div>);})}
     <p style={{...pr,fontSize:12,marginTop:8}}>The frequency of 4+ hour sleep blocks is trending upward. This is one of the clearest signals of sleep maturation.</p>
@@ -312,7 +394,7 @@ export default function LeoDashboard(){
   <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
     {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{...cd,textAlign:"center",padding:"14px 10px"}}><div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.3)",textTransform:"uppercase"}}>{ML[mk]}</div><div style={{fontSize:22,fontWeight:800,color:"#38bdf8",margin:"6px 0 2px"}}>{Math.round(m.milk)}<span style={{fontSize:12,opacity:0.5}}> ml</span></div><div style={{fontSize:9,color:"rgba(255,255,255,0.25)"}}>avg/night</div><div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:4}}>{m.feeds} feeds \u00b7 {Math.round(m.perFeed)} ml/ea</div><div style={{display:"flex",gap:2,height:8,borderRadius:4,overflow:"hidden",marginTop:6}}><div style={{flex:m.bmPct,background:"#818cf8",borderRadius:"4px 0 0 4px"}}/><div style={{flex:m.fmPct,background:"#fb923c",borderRadius:"0 4px 4px 0"}}/></div><div style={{fontSize:9,color:"rgba(255,255,255,0.2)",marginTop:3}}>BM {m.bmPct}% \u00b7 FM {m.fmPct}%</div></div>);})}
   </div>
-  <div style={cd}><h3 style={ct}>Nightly Milk Volume (ml)</h3><ChartBars data={cData(data,"ml")} colorFn="#38bdf8" max={550} h={130} rangeLow={300} rangeHigh={450} rangeLabel="Expected nighttime range" rangeColor="#38bdf8"/></div>
+  <div style={cd}><h3 style={ct}>Nightly Milk Volume (ml)</h3><ChartBars data={cData(data,"ml")} colorFn="#38bdf8" max={550} h={130} normKey="milk" rangeLabel="Age-adjusted expected range" rangeColor="#38bdf8"/></div>
   <div style={cd}><h3 style={ct}>Breast Milk vs Formula</h3>
     <div style={{display:"flex",gap:16,alignItems:"flex-end"}}>
       {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{flex:1,textAlign:"center"}}><div style={{height:100,display:"flex",flexDirection:"column",borderRadius:8,overflow:"hidden",border:"1px solid rgba(255,255,255,0.06)"}}><div style={{flex:m.bmPct,background:"linear-gradient(180deg,#818cf8,#6366f1)",display:"flex",alignItems:"center",justifyContent:"center"}}>{m.bmPct>15&&<span style={{fontSize:11,fontWeight:700,color:"white"}}>{m.bmPct}%</span>}</div><div style={{flex:m.fmPct,background:"linear-gradient(180deg,#fb923c,#ea580c)",display:"flex",alignItems:"center",justifyContent:"center"}}>{m.fmPct>15&&<span style={{fontSize:11,fontWeight:700,color:"white"}}>{m.fmPct}%</span>}</div></div><div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:6,fontWeight:600}}>{MF[mk]}</div></div>);})}
@@ -321,7 +403,7 @@ export default function LeoDashboard(){
   </div>
   <div style={cd}><h3 style={ct}>Volume per Feed</h3>
     {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MF[mk]}</span><span style={{color:"#38bdf8",fontWeight:700}}>{Math.round(m.perFeed)} ml/feed</span></div><MP value={m.perFeed} max={180} color="#38bdf8"/></div>);})}
-    <div style={{marginTop:6,padding:"6px 10px",background:"rgba(56,189,248,0.05)",borderRadius:8,border:"1px dashed rgba(56,189,248,0.15)"}}><span style={{fontSize:10,color:"rgba(56,189,248,0.6)",fontWeight:600}}>Typical range: 120-200 ml per feed at 2-4.5 months</span></div>
+    <div style={{marginTop:6,padding:"6px 10px",background:"rgba(56,189,248,0.05)",borderRadius:8,border:"1px dashed rgba(56,189,248,0.15)"}}><span style={{fontSize:10,color:"rgba(56,189,248,0.6)",fontWeight:600}}>Typical range: 120-150 ml/feed at 2mo, rising to 150-200 ml/feed by 4.5mo</span></div>
   </div>
 </div>)}
 
@@ -331,8 +413,8 @@ export default function LeoDashboard(){
   <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
     {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{...cd,textAlign:"center",padding:"14px 10px"}}><div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.3)",textTransform:"uppercase"}}>{ML[mk]}</div><div style={{fontSize:18,fontWeight:800,color:"#fbbf24",margin:"6px 0 0"}}>{m.poo} <span style={{fontSize:10,opacity:0.5}}>{"\u{1F4A9}"}</span></div><div style={{fontSize:18,fontWeight:800,color:"#94a3b8"}}>{m.gas} <span style={{fontSize:10,opacity:0.5}}>{"\u{1F4A8}"}</span></div><div style={{fontSize:18,fontWeight:800,color:"#f472b6"}}>{m.nappy} <span style={{fontSize:10,opacity:0.5}}>{"\u{1FA72}"}</span></div><div style={{fontSize:9,color:"rgba(255,255,255,0.2)",marginTop:4}}>per night avg</div></div>);})}
   </div>
-  <div style={cd}><h3 style={ct}>Poops per Night</h3><ChartBars data={cData(data,"po")} colorFn="#fbbf24" max={9} h={100}/></div>
-  <div style={cd}><h3 style={ct}>Gas Events per Night</h3><ChartBars data={cData(data,"ga")} colorFn={v=>v>=7?"#f87171":v>=4?"#fbbf24":"#4ade80"} max={11} h={100} rangeLow={0} rangeHigh={3} rangeLabel="Comfortable zone" rangeColor="#4ade80"/><p style={{...pr,fontSize:12,marginTop:10}}>Gas dropped 53% from Jan (5.1/night) to Mar (2.4/night). This is the single biggest comfort improvement.</p></div>
+  <div style={cd}><h3 style={ct}>Poops per Night</h3><ChartBars data={cData(data,"po")} colorFn="#fbbf24" max={9} h={100} normKey="poo" rangeLabel="Age-adjusted range" rangeColor="#fbbf24"/></div>
+  <div style={cd}><h3 style={ct}>Gas Events per Night</h3><ChartBars data={cData(data,"ga")} colorFn={v=>v>=7?"#f87171":v>=4?"#fbbf24":"#4ade80"} max={11} h={100} normKey="gas" rangeLabel="Age-adjusted expected range" rangeColor="#4ade80"/><p style={{...pr,fontSize:12,marginTop:10}}>Gas dropped 53% from Jan (5.1/night) to Mar (2.4/night). This is the single biggest comfort improvement.</p></div>
   <div style={cd}><h3 style={ct}>Poop-Free Nights</h3>
     {MK.map((mk,i)=>{const m=[ms.jan,ms.feb,ms.mar][i];return(<div key={mk} style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"rgba(255,255,255,0.5)",fontWeight:600}}>{MF[mk]}</span><span style={{color:"#fbbf24",fontWeight:700}}>{m.pooFree}%</span></div><MP value={m.pooFree} max={100} color="#fbbf24"/></div>);})}
     <p style={{...pr,fontSize:12,marginTop:8}}>Feb was exceptionally calm (71% poop-free). Mar returned to frequent nighttime poops, likely from the formula ratio change.</p>
